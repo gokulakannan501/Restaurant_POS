@@ -1,0 +1,181 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  pin       String   @unique
+  role      String   @default("WAITER") // ADMIN, MANAGER, CASHIER, WAITER
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+  bills     Bill[]
+
+  @@index([pin])
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  menuItems MenuItem[]
+}
+
+model MenuItem {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  image       String?
+  categoryId  String
+  isAvailable Boolean  @default(true)
+  isVeg       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category       Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  variants       MenuVariant[]
+  orderItems     OrderItem[]
+  inventoryItems InventoryItem[]
+
+  @@index([categoryId])
+}
+
+model MenuVariant {
+  id         String   @id @default(uuid())
+  menuItemId String
+  name       String // e.g., "Small", "Medium", "Large"
+  price      Float
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  menuItem   MenuItem    @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([menuItemId])
+}
+
+model Table {
+  id        String   @id @default(uuid())
+  number    String   @unique
+  capacity  Int
+  status    String   @default("AVAILABLE") // AVAILABLE, OCCUPIED, RESERVED
+  floor     String?
+  position  String? // JSON string for x,y coordinates
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@index([status])
+}
+
+model Order {
+  id            String   @id @default(uuid())
+  orderNumber   String   @unique
+  type          String   @default("DINE_IN") // DINE_IN, TAKEAWAY, DELIVERY
+  status        String   @default("PENDING") // PENDING, PREPARING, READY, SERVED, COMPLETED, CANCELLED
+  tableId       String?
+  userId        String
+  customerName  String?
+  customerPhone String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  table      Table?      @relation(fields: [tableId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
+  orderItems OrderItem[]
+  bill       Bill?
+
+  @@index([orderNumber])
+  @@index([status])
+  @@index([tableId])
+  @@index([userId])
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  menuItemId  String
+  variantId   String?
+  quantity    Int
+  price       Float
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  order    Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem     @relation(fields: [menuItemId], references: [id])
+  variant  MenuVariant? @relation(fields: [variantId], references: [id])
+
+  @@index([orderId])
+  @@index([menuItemId])
+}
+
+model Bill {
+  id            String   @id @default(uuid())
+  billNumber    String   @unique
+  orderId       String   @unique
+  userId        String
+  subtotal      Float
+  taxAmount     Float
+  discount      Float    @default(0)
+  totalAmount   Float
+  paymentMode   String? // CASH, CARD, UPI, WALLET
+  paymentStatus String   @default("PENDING") // PENDING, COMPLETED, FAILED, REFUNDED
+  paidAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@index([billNumber])
+  @@index([orderId])
+  @@index([paymentStatus])
+}
+
+model InventoryItem {
+  id            String    @id @default(uuid())
+  menuItemId    String?
+  name          String
+  unit          String // e.g., "kg", "liters", "pieces"
+  currentStock  Float
+  minStock      Float
+  maxStock      Float?
+  lastRestocked DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  menuItem MenuItem? @relation(fields: [menuItemId], references: [id])
+
+  @@index([menuItemId])
+  @@index([currentStock])
+}
+
+model Tax {
+  id          String   @id @default(uuid())
+  name        String
+  percentage  Float
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
