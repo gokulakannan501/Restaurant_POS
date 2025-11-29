@@ -1,39 +1,82 @@
-# Deployment Guide for Render
+# Deployment Guide - Free Tier Options
 
-This project is configured for easy deployment on [Render](https://render.com) using a Blueprint.
+## Option 1: Vercel (Frontend) + Render (Backend) - NO PAYMENT INFO REQUIRED
 
-## Prerequisites
+This is the recommended approach if you want to avoid adding payment information.
 
-1. A GitHub or GitLab repository containing this project.
-2. A Render account.
+### Backend Deployment (Render)
 
-## Deployment Steps
+1. **Push your code** to GitHub
+2. Go to [Render Dashboard](https://dashboard.render.com)
+3. Click **New +** → **Blueprint**
+4. Connect your repository
+5. Render will detect `render.yaml` and create:
+   - PostgreSQL Database (Free tier)
+   - Backend API Service (Free tier)
+6. After deployment, copy the **Backend URL** (e.g., `https://restaurant-pos-backend.onrender.com`)
 
-1. **Push your code** to your repository.
-2. Log in to your Render dashboard.
-3. Click the **New +** button and select **Blueprint**.
-4. Connect your repository.
-5. Render will automatically detect the `render.yaml` file.
-6. Click **Apply** to create the services:
-   - `restaurant-pos-db`: A PostgreSQL database.
-   - `restaurant-pos-backend`: The Node.js API server.
-   - `restaurant-pos-frontend`: The React static site.
+### Frontend Deployment (Vercel)
 
-## Important Notes
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Click **Add New** → **Project**
+3. Import your GitHub repository
+4. Vercel will auto-detect the configuration from `vercel.json`
+5. Add environment variable:
+   - **Name**: `VITE_API_URL`
+   - **Value**: Your Backend URL from Render (e.g., `https://restaurant-pos-backend.onrender.com`)
+6. Click **Deploy**
+7. After deployment, copy the **Frontend URL** (e.g., `https://restaurant-pos.vercel.app`)
 
-### Database
-- The project is configured to use **PostgreSQL** in production (via `render.yaml` and `schema.prisma`).
-- The database connection string is automatically injected into the backend service.
+### Final Configuration
 
-### Image Uploads
-- **Warning**: Render's file system is **ephemeral**. This means any images uploaded to the `/uploads` directory will be **lost** when the server restarts or redeploys.
-- For a production-grade application, you should update the `upload` controller to store images in a cloud storage service like **AWS S3**, **Cloudinary**, or **Firebase Storage**.
+1. Go back to **Render Dashboard** → Your Backend Service → **Environment**
+2. Update `CORS_ORIGIN` with your Vercel frontend URL
+3. Click **Save Changes** (this will trigger a redeploy)
 
-### Environment Variables
-- `VITE_API_URL` is automatically set for the frontend to point to the backend.
-- `CORS_ORIGIN` is automatically set for the backend to allow requests from the frontend.
-- `JWT_SECRET` is auto-generated.
+---
 
-## Local Development
-- To run locally, ensure you have a PostgreSQL database running or switch `schema.prisma` back to `sqlite` (not recommended if you want to keep dev/prod parity).
-- If using PostgreSQL locally, update your `.env` file in `backend` with the correct `DATABASE_URL`.
+## Option 2: Railway.app - NO PAYMENT INFO REQUIRED
+
+Railway offers $5 free credit per month without requiring payment info.
+
+1. Go to [Railway.app](https://railway.app)
+2. Sign up with GitHub
+3. Click **New Project** → **Deploy from GitHub repo**
+4. Select your repository
+5. Railway will detect both frontend and backend
+6. Add environment variables as needed
+
+---
+
+## Option 3: Netlify (Frontend) + Railway (Backend)
+
+Similar to Option 1 but using Netlify instead of Vercel.
+
+---
+
+## Free Tier Limitations
+
+**Render Free Tier:**
+- Backend sleeps after 15 minutes of inactivity
+- Cold starts take 30-60 seconds
+- 750 hours/month (enough for one service running 24/7)
+
+**Vercel Free Tier:**
+- 100 GB bandwidth/month
+- Unlimited deployments
+- No sleep/cold starts
+
+**Railway Free Tier:**
+- $5 credit/month
+- No sleep for services
+- Pay-as-you-go after credit exhausted
+
+---
+
+## Recommended: Option 1 (Vercel + Render)
+
+This gives you:
+- ✅ No payment info required
+- ✅ Generous free tiers
+- ✅ Easy deployment
+- ✅ Good performance for small projects

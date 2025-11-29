@@ -18,19 +18,8 @@ services:
       - key: CORS_ORIGIN
         sync: false
 
-  # Frontend Service
-  - type: web
-    name: restaurant-pos-frontend
-    env: static
-    # rootDirectory: frontend
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: ./frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        sync: false
-
 databases:
   - name: restaurant-pos-db
     databaseName: restaurant_pos
     user: restaurant_user
-    plan: free # Optional: defaults to the starter plan
+    plan: free
