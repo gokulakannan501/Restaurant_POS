@@ -16,10 +16,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        fromService:
-          type: web
-          name: restaurant-pos-frontend
-          property: url
+        sync: false
 
   # Frontend Service
   - type: web
@@ -30,10 +27,7 @@ services:
     staticPublishPath: ./frontend/dist
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: restaurant-pos-backend
-          property: url
+        sync: false
 
 databases:
   - name: restaurant-pos-db
