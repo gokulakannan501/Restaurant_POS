@@ -3,9 +3,9 @@ services:
   - type: web
     name: restaurant-pos-backend
     env: node
-    rootDirectory: backend
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    # rootDirectory: backend
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -25,9 +25,9 @@ services:
   - type: web
     name: restaurant-pos-frontend
     env: static
-    rootDirectory: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    # rootDirectory: frontend
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
     envVars:
       - key: VITE_API_URL
         fromService:
