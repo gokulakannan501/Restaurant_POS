@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from '../services/api';
+import api, { BASE_URL } from '../services/api';
 import useCartStore from '../store/cartStore';
 import useAuthStore from '../store/authStore';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -345,7 +345,7 @@ const Menu = () => {
                             )}
                             <div className="h-40 bg-gray-200 dark:bg-gray-700 relative overflow-hidden">
                                 {item.image ? (
-                                    <img src={item.image.startsWith('http') ? item.image : `http://localhost:5176${item.image}`} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                    <img src={item.image.startsWith('http') ? item.image : `${BASE_URL}${item.image}`} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
                                         <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -500,7 +500,7 @@ const Menu = () => {
                                     {(selectedFile || formData.image) && (
                                         <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 group">
                                             <img
-                                                src={selectedFile ? URL.createObjectURL(selectedFile) : (formData.image.startsWith('http') ? formData.image : `http://localhost:5176${formData.image}`)}
+                                                src={selectedFile ? URL.createObjectURL(selectedFile) : (formData.image.startsWith('http') ? formData.image : `${BASE_URL}${formData.image}`)}
                                                 alt="Preview"
                                                 className="w-full h-full object-cover"
                                             />
