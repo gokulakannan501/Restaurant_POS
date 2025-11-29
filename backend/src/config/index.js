@@ -10,14 +10,18 @@ export const config = {
         expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     },
     cors: {
-        origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+        // Allow both local dev and Render frontend
+        origin: [
+            'http://localhost:5173', // local development
+            'https://restaurant-pos-frontend-4jsr.onrender.com' // live frontend
+        ],
     },
     pagination: {
         defaultLimit: 20,
         maxLimit: 100,
     },
     tax: {
-        cgst: 2.5, // 2.5%
-        sgst: 2.5, // 2.5%
+        cgst: 2.5,
+        sgst: 2.5,
     },
 };
