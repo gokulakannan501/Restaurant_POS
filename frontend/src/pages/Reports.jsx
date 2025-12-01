@@ -5,26 +5,34 @@ import toast from 'react-hot-toast';
 const Reports = () => {
     const [activeTab, setActiveTab] = useState('DAILY'); // DAILY, ITEMS
     const [loading, setLoading] = useState(false);
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [dateRange, setDateRange] = useState({
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date().toISOString().split('T')[0]
+    });
 
     const [dailyData, setDailyData] = useState(null);
     const [itemData, setItemData] = useState([]);
 
     useEffect(() => {
         fetchReport();
-    }, [activeTab, date]);
+    }, [activeTab, dateRange]);
 
     const fetchReport = async () => {
         setLoading(true);
         try {
             if (activeTab === 'DAILY') {
-                const response = await api.get('/reports/daily-sales', { params: { date } });
+                const response = await api.get('/reports/daily-sales', {
+                    params: {
+                        startDate: dateRange.startDate,
+                        endDate: dateRange.endDate
+                    }
+                });
                 setDailyData(response.data.data);
             } else {
                 const response = await api.get('/reports/item-wise', {
                     params: {
-                        startDate: date,
-                        endDate: date
+                        startDate: dateRange.startDate,
+                        endDate: dateRange.endDate
                     }
                 });
                 setItemData(response.data.data);
@@ -41,7 +49,11 @@ const Reports = () => {
         try {
             const type = activeTab === 'DAILY' ? 'daily-sales' : 'item-wise';
             const response = await api.get('/reports/export/csv', {
-                params: { type, startDate: date, endDate: date },
+                params: {
+                    type,
+                    startDate: dateRange.startDate,
+                    endDate: dateRange.endDate
+                },
                 responseType: 'blob',
             });
 
@@ -63,12 +75,21 @@ const Reports = () => {
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports & Analytics</h1>
                 <div className="flex space-x-4">
-                    <input
-                        type="date"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
-                    />
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="date"
+                            value={dateRange.startDate}
+                            onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
+                            className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                        />
+                        <span className="text-gray-500 dark:text-gray-400">to</span>
+                        <input
+                            type="date"
+                            value={dateRange.endDate}
+                            onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
+                            className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                        />
+                    </div>
                     <button onClick={handleExport} className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
                         <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

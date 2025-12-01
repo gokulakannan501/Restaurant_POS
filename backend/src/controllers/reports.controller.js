@@ -1,20 +1,37 @@
 import prisma from '../config/database.js';
 
 export const getDailySalesReport = async (req, res) => {
-    const { date } = req.query;
+    const { startDate, endDate } = req.query;
 
-    const targetDate = date ? new Date(date) : new Date();
-    const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+    const where = {
+        paymentStatus: 'COMPLETED',
+    };
+
+    if (startDate || endDate) {
+        where.createdAt = {};
+        if (startDate) {
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            where.createdAt.gte = start;
+        }
+        if (endDate) {
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            where.createdAt.lte = end;
+        }
+    } else {
+        // Default to today if no date range provided
+        const today = new Date();
+        const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+        where.createdAt = {
+            gte: startOfDay,
+            lte: endOfDay,
+        };
+    }
 
     const bills = await prisma.bill.findMany({
-        where: {
-            paymentStatus: 'COMPLETED',
-            createdAt: {
-                gte: startOfDay,
-                lte: endOfDay,
-            },
-        },
+        where,
         include: {
             order: {
                 include: {

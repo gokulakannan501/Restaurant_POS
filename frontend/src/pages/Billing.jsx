@@ -10,6 +10,11 @@ const Billing = () => {
     const [loading, setLoading] = useState(true);
     const [processingPayment, setProcessingPayment] = useState(false);
 
+    const [dateRange, setDateRange] = useState({
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date().toISOString().split('T')[0]
+    });
+
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -26,14 +31,16 @@ const Billing = () => {
 
     useEffect(() => {
         fetchBills();
-    }, [activeTab]);
+    }, [activeTab, dateRange]);
 
     const fetchBills = async () => {
         setLoading(true);
         try {
             const response = await api.get('/billing', {
                 params: {
-                    paymentStatus: activeTab === 'UNPAID' ? 'PENDING' : 'COMPLETED'
+                    paymentStatus: activeTab === 'UNPAID' ? 'PENDING' : 'COMPLETED',
+                    startDate: dateRange.startDate,
+                    endDate: dateRange.endDate
                 }
             });
             setBills(response.data.data);
@@ -82,6 +89,23 @@ const Billing = () => {
             <div className="w-full md:w-1/3 bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300">
                 <div className="p-4 border-b border-gray-100 dark:border-gray-700">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Bills</h2>
+
+                    {/* Date Filters */}
+                    <div className="flex space-x-2 mb-4">
+                        <input
+                            type="date"
+                            value={dateRange.startDate}
+                            onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
+                            className="w-1/2 px-2 py-1 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-primary-500 outline-none"
+                        />
+                        <input
+                            type="date"
+                            value={dateRange.endDate}
+                            onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
+                            className="w-1/2 px-2 py-1 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-primary-500 outline-none"
+                        />
+                    </div>
+
                     <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
                         <button
                             onClick={() => setActiveTab('UNPAID')}
