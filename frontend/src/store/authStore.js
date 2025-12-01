@@ -1,48 +1,104 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import api from '../services/api';
+import toast from 'react-hot-toast';
 
 const useAuthStore = create(
     persist(
-        (set) => ({
-            user: {
-                id: 'default-admin-id',
-                name: 'Admin User',
-                role: 'ADMIN'
-            },
-            token: 'dummy-token',
-            isAuthenticated: true,
+        (set, get) => ({
+            user: null,
+            token: null,
+            isAuthenticated: false,
             isLoading: false,
             error: null,
 
-            login: async (pin) => {
-                // Mock login
-                set({
-                    user: { id: 'default-admin-id', name: 'Admin User', role: 'ADMIN' },
-                    token: 'dummy-token',
-                    isAuthenticated: true,
-                    isLoading: false
-                });
-                return true;
+            login: async (email, password) => {
+                set({ isLoading: true, error: null });
+                try {
+                    const response = await api.post('/auth/login', { email, password });
+                    const { user, token } = response.data.data;
+
+                    set({
+                        user,
+                        token,
+                        isAuthenticated: true,
+                        isLoading: false,
+                        error: null,
+                    });
+
+                    // Set token in axios defaults
+                    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+                    toast.success(`Welcome back, ${user.name}!`);
+                    return true;
+                } catch (error) {
+                    const errorMessage = error.response?.data?.message || 'Login failed';
+                    set({
+                        user: null,
+                        token: null,
+                        isAuthenticated: false,
+                        isLoading: false,
+                        error: errorMessage,
+                    });
+                    toast.error(errorMessage);
+                    return false;
+                }
             },
 
-            logout: () => {
-                // Disable logout or just reset to default
-                // set({ user: null, token: null, isAuthenticated: false });
-                window.location.reload();
+            logout: async () => {
+                try {
+                    await api.post('/auth/logout');
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+
+                set({
+                    user: null,
+                    token: null,
+                    isAuthenticated: false,
+                    error: null,
+                });
+
+                delete api.defaults.headers.common['Authorization'];
+                toast.success('Logged out successfully');
             },
 
             checkAuth: async () => {
-                // Always authenticated
-                set({
-                    user: { id: 'default-admin-id', name: 'Admin User', role: 'ADMIN' },
-                    isAuthenticated: true
-                });
+                const { token } = get();
+
+                if (!token) {
+                    set({ isAuthenticated: false, user: null });
+                    return;
+                }
+
+                try {
+                    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                    const response = await api.get('/auth/me');
+                    set({
+                        user: response.data.data,
+                        isAuthenticated: true,
+                    });
+                } catch (error) {
+                    set({
+                        user: null,
+                        token: null,
+                        isAuthenticated: false,
+                    });
+                    delete api.defaults.headers.common['Authorization'];
+                }
+            },
+
+            updateUser: (userData) => {
+                set({ user: { ...get().user, ...userData } });
             },
         }),
         {
             name: 'auth-storage',
-            partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
+            partialize: (state) => ({
+                user: state.user,
+                token: state.token,
+                isAuthenticated: state.isAuthenticated,
+            }),
         }
     )
 );

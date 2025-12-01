@@ -21,6 +21,7 @@ const Layout = () => {
         { path: '/inventory', label: 'Inventory', roles: ['ADMIN', 'MANAGER'] },
         { path: '/reports', label: 'Reports', roles: ['ADMIN', 'MANAGER'] },
         { path: '/settings', label: 'Settings', roles: ['ADMIN', 'MANAGER'] },
+        { path: '/users', label: 'Users', roles: ['ADMIN'] },
     ];
 
     const filteredNavItems = navItems.filter(item => item.roles.includes(user?.role));
@@ -63,7 +64,10 @@ const Layout = () => {
                     ))}
                 </nav>
                 <div className="absolute bottom-0 w-full p-4 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center mb-4">
+                    <Link
+                        to="/profile"
+                        className="flex items-center mb-4 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
                         <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-dark-surface flex items-center justify-center text-primary-700 font-bold">
                             {user?.name?.charAt(0)}
                         </div>
@@ -71,14 +75,19 @@ const Layout = () => {
                             <p className="text-sm font-medium text-gray-900 dark:text-dark-text">{user?.name}</p>
                             <p className="text-xs text-gray-500 capitalize dark:text-gray-400">{user?.role?.toLowerCase()}</p>
                         </div>
-                    </div>
+                    </Link>
                     <button
                         onClick={toggleTheme}
                         className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-dark-surface rounded-lg hover:bg-gray-200 dark:hover:bg-dark-surface transition-colors mb-2"
                     >
                         Switch to {theme === 'dark' ? 'Light' : 'Dark'} Mode
                     </button>
-
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                    >
+                        Logout
+                    </button>
                 </div>
             </aside>
             {/* Main Content */}

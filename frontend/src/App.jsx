@@ -8,6 +8,7 @@ import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 // Pages
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Tables from './pages/Tables';
 import Menu from './pages/Menu';
@@ -17,9 +18,11 @@ import Billing from './pages/Billing';
 import Inventory from './pages/Inventory';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
+import Users from './pages/Users';
 
 function App() {
-    const { checkAuth } = useAuthStore();
+    const { isAuthenticated, checkAuth } = useAuthStore();
 
     useEffect(() => {
         checkAuth();
@@ -29,10 +32,28 @@ function App() {
         <Router>
             <Toaster position="top-right" />
             <Routes>
+                {/* Public Route */}
+                <Route path="/login" element={
+                    isAuthenticated ? <Navigate to="/" replace /> : <Login />
+                } />
+
+                {/* Protected Routes */}
                 <Route element={<Layout />}>
                     <Route path="/" element={
                         <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER']}>
                             <Dashboard />
+                        </ProtectedRoute>
+                    } />
+
+                    <Route path="/profile" element={
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER']}>
+                            <Profile />
+                        </ProtectedRoute>
+                    } />
+
+                    <Route path="/users" element={
+                        <ProtectedRoute allowedRoles={['ADMIN']}>
+                            <Users />
                         </ProtectedRoute>
                     } />
 
@@ -85,7 +106,10 @@ function App() {
                     } />
                 </Route>
 
-                <Route path="*" element={<Navigate to="/" replace />} />
+                {/* Redirect to login if not authenticated */}
+                <Route path="*" element={
+                    isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/login" replace />
+                } />
             </Routes>
         </Router>
     );
