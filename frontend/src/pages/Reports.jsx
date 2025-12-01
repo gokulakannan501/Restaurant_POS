@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { formatDate } from '../utils/dateUtils';
 
 const Reports = () => {
     const [activeTab, setActiveTab] = useState('DAILY'); // DAILY, ITEMS

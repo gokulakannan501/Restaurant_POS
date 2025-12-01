@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { formatDate, formatDateTime } from '../utils/dateUtils';
 
 const Billing = () => {
     const [activeTab, setActiveTab] = useState('UNPAID'); // UNPAID, PAID
@@ -202,7 +203,7 @@ const Billing = () => {
                                 <div className="border-b border-dashed border-gray-300 pb-4 mb-4 text-sm">
                                     <div className="flex justify-between mb-1">
                                         <span className="text-gray-600">Date:</span>
-                                        <span className="font-medium text-gray-900">{new Date(selectedBill.createdAt).toLocaleString()}</span>
+                                        <span className="font-medium text-gray-900">{formatDateTime(selectedBill.createdAt)}</span>
                                     </div>
                                     <div className="flex justify-between mb-1">
                                         <span className="text-gray-600">Bill No:</span>
