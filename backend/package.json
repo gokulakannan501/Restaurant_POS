@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "build": "node node_modules/prisma/build/index.js generate && node node_modules/prisma/build/index.js db push --accept-data-loss",
+    "build": "node node_modules/prisma/build/index.js generate && node node_modules/prisma/build/index.js db push --force-reset --accept-data-loss && node prisma/seed.js",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "prisma:generate": "prisma generate",
