@@ -3,49 +3,39 @@ import prisma from '../config/database.js';
 import { generateToken } from '../utils/jwt.js';
 
 export const login = async (req, res) => {
-    const { pin } = req.body;
+    const { email, password } = req.body;
 
     const user = await prisma.user.findUnique({
-        where: { pin: await bcrypt.hash(pin, 10) },
-        select: {
-            id: true,
-            name: true,
-            pin: true,
-            role: true,
-            isActive: true,
-        },
+        where: { email },
     });
 
-    // Since we can't query by hashed PIN directly, we need to get all users and compare
-    const allUsers = await prisma.user.findMany({
-        where: { isActive: true },
-    });
-
-    let authenticatedUser = null;
-    for (const u of allUsers) {
-        const isMatch = await bcrypt.compare(pin, u.pin);
-        if (isMatch) {
-            authenticatedUser = u;
-            break;
-        }
-    }
-
-    if (!authenticatedUser) {
+    if (!user || !user.isActive) {
         return res.status(401).json({
             success: false,
-            message: 'Invalid PIN',
+            message: 'Invalid credentials or account inactive',
         });
     }
 
-    const token = generateToken(authenticatedUser.id);
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+        return res.status(401).json({
+            success: false,
+            message: 'Invalid credentials',
+        });
+    }
+
+    const token = generateToken(user.id);
 
     res.json({
         success: true,
         data: {
             user: {
-                id: authenticatedUser.id,
-                name: authenticatedUser.name,
-                role: authenticatedUser.role,
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                permissions: user.permissions,
             },
             token,
         },
@@ -53,7 +43,6 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-    // In a stateless JWT system, logout is handled client-side
     res.json({
         success: true,
         message: 'Logged out successfully',
@@ -66,7 +55,9 @@ export const getCurrentUser = async (req, res) => {
         select: {
             id: true,
             name: true,
+            email: true,
             role: true,
+            permissions: true,
             isActive: true,
             createdAt: true,
         },
@@ -79,24 +70,41 @@ export const getCurrentUser = async (req, res) => {
 };
 
 export const createUser = async (req, res) => {
-    const { name, pin, role } = req.body;
+    const { name, email, password, role, permissions } = req.body;
 
-    const hashedPin = await bcrypt.hash(pin, 10);
+    const existingUser = await prisma.user.findUnique({
+        where: { email },
+    });
+
+    if (existingUser) {
+        return res.status(400).json({
+            success: false,
+            message: 'User with this email already exists',
+        });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
         data: {
             name,
-            pin: hashedPin,
+            email,
+            password: hashedPassword,
             role,
+            permissions: permissions || [],
         },
         select: {
             id: true,
             name: true,
+            email: true,
             role: true,
+            permissions: true,
             isActive: true,
             createdAt: true,
         },
     });
+
+    // TODO: Send email with temporary password
 
     res.status(201).json({
         success: true,
@@ -106,12 +114,14 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     const { id } = req.params;
-    const { name, pin, role, isActive } = req.body;
+    const { name, email, password, role, permissions, isActive } = req.body;
 
     const data = {};
     if (name) data.name = name;
-    if (pin) data.pin = await bcrypt.hash(pin, 10);
+    if (email) data.email = email;
+    if (password) data.password = await bcrypt.hash(password, 10);
     if (role) data.role = role;
+    if (permissions) data.permissions = permissions;
     if (typeof isActive === 'boolean') data.isActive = isActive;
 
     const user = await prisma.user.update({
@@ -120,7 +130,9 @@ export const updateUser = async (req, res) => {
         select: {
             id: true,
             name: true,
+            email: true,
             role: true,
+            permissions: true,
             isActive: true,
             updatedAt: true,
         },
@@ -137,7 +149,9 @@ export const getAllUsers = async (req, res) => {
         select: {
             id: true,
             name: true,
+            email: true,
             role: true,
+            permissions: true,
             isActive: true,
             createdAt: true,
         },
@@ -149,5 +163,34 @@ export const getAllUsers = async (req, res) => {
     res.json({
         success: true,
         data: users,
+    });
+};
+
+export const changePassword = async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+    });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+        return res.status(400).json({
+            success: false,
+            message: 'Incorrect current password',
+        });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword },
+    });
+
+    res.json({
+        success: true,
+        message: 'Password updated successfully',
     });
 };

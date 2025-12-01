@@ -12,18 +12,20 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  pin       String   @unique
-  role      String   @default("WAITER") // ADMIN, MANAGER, CASHIER, WAITER
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  password    String
+  role        String   @default("WAITER") // ADMIN, MANAGER, CASHIER, WAITER
+  permissions Json?    // Array of allowed pages/features
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   orders    Order[]
   bills     Bill[]
 
-  @@index([pin])
+  @@index([email])
 }
 
 model Category {
