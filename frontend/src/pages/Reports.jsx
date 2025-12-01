@@ -39,7 +39,9 @@ const Reports = () => {
             }
         } catch (error) {
             console.error('Error fetching report:', error);
-            toast.error('Failed to load report');
+            console.error('Error response:', error.response?.data);
+            const errorMsg = error.response?.data?.message || error.message || 'Failed to load report';
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }
