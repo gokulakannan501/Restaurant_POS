@@ -60,7 +60,7 @@ export const getDailySalesReport = async (req, res) => {
     res.json({
         success: true,
         data: {
-            date: targetDate.toISOString().split('T')[0],
+            date: startDate || new Date().toISOString().split('T')[0],
             totalSales,
             totalOrders,
             totalTax,
