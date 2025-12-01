@@ -240,7 +240,7 @@ const Billing = () => {
                                         <span className="font-medium text-gray-900">₹{selectedBill.subtotal}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-gray-600">Tax (5%)</span>
+                                        <span className="text-gray-600">Tax</span>
                                         <span className="font-medium text-gray-900">₹{selectedBill.taxAmount}</span>
                                     </div>
                                     {selectedBill.discount > 0 && (

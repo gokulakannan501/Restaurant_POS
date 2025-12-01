@@ -23,20 +23,39 @@ const Cart = () => {
 
     const [loading, setLoading] = useState(false);
     const [tables, setTables] = useState([]);
+    const [taxes, setTaxes] = useState([]);
     const navigate = useNavigate();
 
+
+
     useEffect(() => {
-        const fetchTables = async () => {
+        const fetchData = async () => {
             try {
-                const response = await api.get('/tables');
-                setTables(response.data.data);
+                const [tablesRes, taxesRes] = await Promise.all([
+                    api.get('/tables'),
+                    api.get('/taxes')
+                ]);
+                setTables(tablesRes.data.data);
+                setTaxes(taxesRes.data.data.filter(t => t.isActive));
             } catch (error) {
-                console.error('Error fetching tables:', error);
+                console.error('Error fetching data:', error);
             }
         };
 
-        fetchTables();
+        fetchData();
     }, []);
+
+    const calculateTax = () => {
+        const subtotal = getTotal();
+        const totalTaxRate = taxes.reduce((sum, tax) => sum + tax.percentage, 0);
+        return (subtotal * totalTaxRate) / 100;
+    };
+
+    const getTaxLabel = () => {
+        if (taxes.length === 0) return 'Tax';
+        const totalRate = taxes.reduce((sum, tax) => sum + tax.percentage, 0);
+        return `Tax (${totalRate}%)`;
+    };
 
     const handlePlaceOrder = async () => {
         if (items.length === 0) {
@@ -235,12 +254,12 @@ const Cart = () => {
                                 <span>₹{getTotal()}</span>
                             </div>
                             <div className="flex justify-between text-gray-600 dark:text-gray-400">
-                                <span>Tax (5%)</span>
-                                <span>₹{(getTotal() * 0.05).toFixed(2)}</span>
+                                <span>{getTaxLabel()}</span>
+                                <span>₹{calculateTax().toFixed(2)}</span>
                             </div>
                             <div className="border-t border-gray-100 dark:border-gray-700 pt-3 flex justify-between font-bold text-lg text-gray-900 dark:text-white">
                                 <span>Total</span>
-                                <span>₹{(getTotal() * 1.05).toFixed(2)}</span>
+                                <span>₹{(getTotal() + calculateTax()).toFixed(2)}</span>
                             </div>
                         </div>
 
