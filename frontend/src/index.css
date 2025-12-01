@@ -40,6 +40,17 @@
 }
 
 @media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
   body * {
     visibility: hidden;
   }
@@ -51,23 +62,18 @@
 
   #receipt-area {
     position: absolute;
-    left: 50%;
+    left: 0;
     top: 0;
-    transform: translateX(-50%);
-    width: 80mm;
-    /* Standard receipt width */
+    width: 100%;
     margin: 0;
-    padding: 20px 0;
-    /* Add some vertical padding */
+    padding: 10px;
     box-shadow: none;
     border: none;
     background: white;
     color: black;
-  }
-
-  /* Hide scrollbars and other UI elements */
-  ::-webkit-scrollbar {
-    display: none;
+    overflow: visible !important;
+    height: auto !important;
+    display: block !important;
   }
 
   /* Ensure text is black for printing */
@@ -75,5 +81,10 @@
   #receipt-area .text-gray-600,
   #receipt-area .text-gray-900 {
     color: black !important;
+  }
+
+  /* Hide scrollbars */
+  ::-webkit-scrollbar {
+    display: none;
   }
 }

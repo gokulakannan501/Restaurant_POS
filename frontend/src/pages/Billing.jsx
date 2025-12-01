@@ -199,9 +199,9 @@ const Billing = () => {
                         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                             <div className="max-w-md mx-auto bg-white p-6 shadow-sm border border-gray-200" id="receipt-area">
                                 <div className="text-center mb-6">
-                                    <h1 className="text-2xl font-bold text-gray-900">Restaurant Name</h1>
-                                    <p className="text-gray-500 text-sm">123 Food Street, City</p>
-                                    <p className="text-gray-500 text-sm">Phone: +1 234 567 890</p>
+                                    <h1 className="text-2xl font-bold text-gray-900">The Classic Restaurant</h1>
+                                    <p className="text-gray-500 text-sm">Andagalur Gate Flyover, Sakthinagar, Rasipuram, Tamil Nadu 637401.</p>
+                                    <p className="text-gray-500 text-sm">Phone: 6374038470, 8754346195</p>
                                 </div>
 
                                 <div className="border-b border-dashed border-gray-300 pb-4 mb-4 text-sm">
