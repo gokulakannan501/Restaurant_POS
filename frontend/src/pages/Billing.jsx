@@ -43,13 +43,17 @@ const Billing = () => {
     const fetchBills = async () => {
         setLoading(true);
         try {
-            const response = await api.get('/billing', {
-                params: {
-                    paymentStatus: activeTab === 'UNPAID' ? 'PENDING' : 'COMPLETED',
-                    startDate: dateRange.startDate,
-                    endDate: dateRange.endDate
-                }
-            });
+            const params = {
+                paymentStatus: activeTab === 'UNPAID' ? 'PENDING' : 'COMPLETED'
+            };
+
+            // Only apply date filter for history (PAID bills)
+            if (activeTab === 'PAID') {
+                params.startDate = dateRange.startDate;
+                params.endDate = dateRange.endDate;
+            }
+
+            const response = await api.get('/billing', { params });
             setBills(response.data.data);
         } catch (error) {
             console.error('Error fetching bills:', error);
