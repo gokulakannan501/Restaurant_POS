@@ -10,9 +10,15 @@ const Billing = () => {
     const [loading, setLoading] = useState(true);
     const [processingPayment, setProcessingPayment] = useState(false);
 
-    const [dateRange, setDateRange] = useState({
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date().toISOString().split('T')[0]
+    const [dateRange, setDateRange] = useState(() => {
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+
+        return {
+            startDate: thirtyDaysAgo.toISOString().split('T')[0],
+            endDate: today.toISOString().split('T')[0]
+        };
     });
 
     const location = useLocation();
