@@ -270,14 +270,14 @@ export const getAllBills = async (req, res) => {
         where,
         include: {
             order: {
-                select: {
-                    orderNumber: true,
-                    type: true,
-                    table: {
-                        select: {
-                            number: true,
+                include: {
+                    orderItems: {
+                        include: {
+                            menuItem: true,
+                            variant: true,
                         },
                     },
+                    table: true,
                 },
             },
             user: {
