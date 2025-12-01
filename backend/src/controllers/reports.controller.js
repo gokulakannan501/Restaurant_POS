@@ -199,18 +199,34 @@ export const exportReportToCSV = async (req, res) => {
     let filename = '';
 
     if (type === 'daily-sales') {
-        const targetDate = startDate ? new Date(startDate) : new Date();
-        const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
-        const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+        const where = {
+            paymentStatus: 'COMPLETED',
+        };
+
+        if (startDate || endDate) {
+            where.createdAt = {};
+            if (startDate) {
+                const start = new Date(startDate);
+                start.setHours(0, 0, 0, 0);
+                where.createdAt.gte = start;
+            }
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                where.createdAt.lte = end;
+            }
+        } else {
+            const today = new Date();
+            const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+            const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+            where.createdAt = {
+                gte: startOfDay,
+                lte: endOfDay,
+            };
+        }
 
         const bills = await prisma.bill.findMany({
-            where: {
-                paymentStatus: 'COMPLETED',
-                createdAt: {
-                    gte: startOfDay,
-                    lte: endOfDay,
-                },
-            },
+            where,
             include: {
                 order: {
                     select: {
@@ -226,7 +242,8 @@ export const exportReportToCSV = async (req, res) => {
             csvData += `${bill.billNumber},${bill.order.orderNumber},${bill.order.type},${bill.subtotal},${bill.taxAmount},${bill.discount},${bill.totalAmount},${bill.paymentMode},${bill.createdAt.toISOString()}\n`;
         });
 
-        filename = `daily-sales-${targetDate.toISOString().split('T')[0]}.csv`;
+        const dateStr = startDate || new Date().toISOString().split('T')[0];
+        filename = `daily-sales-${dateStr}.csv`;
     } else if (type === 'item-wise') {
         const where = {
             order: {
@@ -238,8 +255,16 @@ export const exportReportToCSV = async (req, res) => {
 
         if (startDate || endDate) {
             where.createdAt = {};
-            if (startDate) where.createdAt.gte = new Date(startDate);
-            if (endDate) where.createdAt.lte = new Date(endDate);
+            if (startDate) {
+                const start = new Date(startDate);
+                start.setHours(0, 0, 0, 0);
+                where.createdAt.gte = start;
+            }
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                where.createdAt.lte = end;
+            }
         }
 
         const orderItems = await prisma.orderItem.findMany({
