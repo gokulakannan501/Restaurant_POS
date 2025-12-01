@@ -51,11 +51,14 @@
 
   #receipt-area {
     position: absolute;
-    left: 0;
+    left: 50%;
     top: 0;
-    width: 100%;
+    transform: translateX(-50%);
+    width: 80mm;
+    /* Standard receipt width */
     margin: 0;
-    padding: 0;
+    padding: 20px 0;
+    /* Add some vertical padding */
     box-shadow: none;
     border: none;
     background: white;
@@ -65,5 +68,12 @@
   /* Hide scrollbars and other UI elements */
   ::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Ensure text is black for printing */
+  #receipt-area .text-gray-500,
+  #receipt-area .text-gray-600,
+  #receipt-area .text-gray-900 {
+    color: black !important;
   }
 }
