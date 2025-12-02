@@ -6,6 +6,13 @@
   body {
     @apply bg-gray-50 text-gray-900 antialiased dark:bg-dark-bg dark:text-dark-text transition-colors duration-300;
   }
+
+  /* Prevent horizontal scroll on mobile */
+  html,
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
 }
 
 @layer components {
@@ -36,6 +43,45 @@
   /* Glassmorphism utilities */
   .glass {
     @apply bg-white bg-opacity-70 backdrop-blur-md border border-white/20 shadow-lg dark:bg-dark-surface dark:bg-opacity-70 dark:border-gray-700;
+  }
+
+  /* Mobile-friendly table wrapper */
+  .table-wrapper {
+    @apply w-full overflow-x-auto -mx-4 sm:mx-0;
+  }
+
+  @media (max-width: 640px) {
+    .table-wrapper table {
+      min-width: 600px;
+    }
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 1024px) {
+
+  /* Ensure content doesn't overflow */
+  .max-w-7xl,
+  .max-w-6xl,
+  .max-w-5xl,
+  .max-w-4xl {
+    max-width: 100% !important;
+  }
+
+  /* Better spacing for mobile */
+  h1 {
+    font-size: 1.5rem !important;
+    line-height: 2rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+    line-height: 1.75rem !important;
+  }
+
+  /* Make cards stack better */
+  .grid {
+    gap: 0.75rem !important;
   }
 }
 
