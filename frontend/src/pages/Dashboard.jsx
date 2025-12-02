@@ -82,18 +82,18 @@ const Dashboard = () => {
     ];
 
     return (
-        <div className="bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg p-6 transition-all duration-300">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Dashboard</h1>
+        <div className="w-full">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8">Dashboard</h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 {statCards.map((stat, index) => (
-                    <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
+                    <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.title}</p>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stat.value}</p>
+                                <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">{stat.title}</p>
+                                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">{stat.value}</p>
                             </div>
-                            <div className={`p-3 rounded-lg ${stat.bg} bg-opacity-20`}>
+                            <div className={`p-2 sm:p-3 rounded-lg ${stat.bg} bg-opacity-20`}>
                                 {stat.icon}
                             </div>
                         </div>
@@ -101,30 +101,30 @@ const Dashboard = () => {
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
                 {/* Quick Actions */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
-                    <div className="grid grid-cols-2 gap-4">
-                        <Link to="/orders" className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors text-center border border-blue-100 dark:border-blue-800">
-                            <span className="block text-blue-700 dark:text-blue-300 font-medium">New Order</span>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 dark:border-gray-700">
+                    <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                        <Link to="/orders" className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors text-center border border-blue-100 dark:border-blue-800">
+                            <span className="block text-blue-700 dark:text-blue-300 font-medium text-sm sm:text-base">New Order</span>
                         </Link>
-                        <Link to="/tables" className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors text-center border border-purple-100 dark:border-purple-800">
-                            <span className="block text-purple-700 dark:text-purple-300 font-medium">Manage Tables</span>
+                        <Link to="/tables" className="p-3 sm:p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors text-center border border-purple-100 dark:border-purple-800">
+                            <span className="block text-purple-700 dark:text-purple-300 font-medium text-sm sm:text-base">Manage Tables</span>
                         </Link>
-                        <Link to="/menu" className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors text-center border border-green-100 dark:border-green-800">
-                            <span className="block text-green-700 dark:text-green-300 font-medium">Update Menu</span>
+                        <Link to="/menu" className="p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors text-center border border-green-100 dark:border-green-800">
+                            <span className="block text-green-700 dark:text-green-300 font-medium text-sm sm:text-base">Update Menu</span>
                         </Link>
-                        <Link to="/reports" className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-colors text-center border border-orange-100 dark:border-orange-800">
-                            <span className="block text-orange-700 dark:text-orange-300 font-medium">View Reports</span>
+                        <Link to="/reports" className="p-3 sm:p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-colors text-center border border-orange-100 dark:border-orange-800">
+                            <span className="block text-orange-700 dark:text-orange-300 font-medium text-sm sm:text-base">View Reports</span>
                         </Link>
                     </div>
                 </div>
 
                 {/* Low Stock Alert */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 dark:border-gray-700">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Low Stock Alerts</h2>
+                        <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Low Stock Alerts</h2>
                         {stats.lowStockItems > 0 && (
                             <span className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-xs font-medium px-2.5 py-0.5 rounded-full border border-red-200 dark:border-red-800">
                                 {stats.lowStockItems} Items
@@ -133,14 +133,14 @@ const Dashboard = () => {
                     </div>
                     {stats.lowStockItems > 0 ? (
                         <div className="text-center py-8">
-                            <p className="text-gray-500 dark:text-gray-400 mb-4">You have items running low on stock</p>
-                            <Link to="/inventory" className="text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700 dark:hover:text-primary-300">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">You have items running low on stock</p>
+                            <Link to="/inventory" className="text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700 dark:hover:text-primary-300 text-sm">
                                 View Inventory &rarr;
                             </Link>
                         </div>
                     ) : (
                         <div className="text-center py-8 text-green-600 dark:text-green-400">
-                            <p>All stock levels are good!</p>
+                            <p className="text-sm">All stock levels are good!</p>
                         </div>
                     )}
                 </div>
