@@ -240,77 +240,87 @@ const Menu = () => {
     }
 
     return (
-        <div className="h-[calc(100vh-6rem)] flex flex-col bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg p-6 transition-all duration-300">
-            <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col h-full w-full">
+            {/* Header Section */}
+            <div className="flex flex-col space-y-4 mb-4 sm:mb-6">
+                {/* Title and Table Info */}
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Menu</h1>
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Menu</h1>
                     {tableInfo && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Ordering for Table {tableInfo.tableNumber}</p>
+                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Ordering for Table {tableInfo.tableNumber}
+                        </p>
                     )}
                 </div>
 
-                <div className="flex items-center space-x-4">
+                {/* Search and Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    {/* Search Input */}
                     <input
                         type="text"
                         placeholder="Search items..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="input w-64 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                        className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-sm"
                     />
-                    {isAdminOrManager && (
-                        <>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                        {isAdminOrManager && (
+                            <>
+                                <button
+                                    onClick={() => handleOpenCategoryModal()}
+                                    className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-green-600/30 flex items-center justify-center text-sm"
+                                >
+                                    <svg className="w-4 h-4 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span className="hidden sm:inline">Add Category</span>
+                                </button>
+                                <button
+                                    onClick={() => handleOpenModal()}
+                                    className="flex-1 sm:flex-none bg-primary-600 hover:bg-primary-700 text-white px-3 sm:px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30 flex items-center justify-center text-sm"
+                                >
+                                    <svg className="w-4 h-4 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span className="hidden sm:inline">Add Item</span>
+                                </button>
+                            </>
+                        )}
+                        {cartItems.length > 0 && (
                             <button
-                                onClick={() => handleOpenCategoryModal()}
-                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-green-600/30 flex items-center"
+                                onClick={() => navigate('/orders/new')}
+                                className="flex-1 sm:flex-none bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors relative shadow-lg shadow-primary-600/30 text-sm"
                             >
-                                <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                </svg>
-                                Add Category
+                                View Cart
+                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-sm">
+                                    {cartItems.length}
+                                </span>
                             </button>
-                            <button
-                                onClick={() => handleOpenModal()}
-                                className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30 flex items-center"
-                            >
-                                <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                </svg>
-                                Add Item
-                            </button>
-                        </>
-                    )}
-                    {cartItems.length > 0 && (
-                        <button
-                            onClick={() => navigate('/orders/new')}
-                            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors relative shadow-lg shadow-primary-600/30"
-                        >
-                            View Cart
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-sm">
-                                {cartItems.length}
-                            </span>
-                        </button>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
 
             {/* Categories */}
-            <div className="flex space-x-2 overflow-x-auto pb-4 mb-4 scrollbar-hide">
+            <div className="flex space-x-2 overflow-x-auto pb-3 mb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
                 <button
                     onClick={() => setActiveCategory('ALL')}
-                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeCategory === 'ALL'
-                        ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent'
+                    className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 ${activeCategory === 'ALL'
+                            ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent'
                         }`}
                 >
                     All Items
                 </button>
                 {categories.map((cat) => (
-                    <div key={cat.id} className="relative group">
+                    <div key={cat.id} className="relative group flex-shrink-0">
                         <button
                             onClick={() => setActiveCategory(cat.id)}
-                            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeCategory === cat.id
-                                ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent'
+                            className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeCategory === cat.id
+                                    ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
+                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent'
                                 }`}
                         >
                             {cat.name}
@@ -334,8 +344,8 @@ const Menu = () => {
             </div>
 
             {/* Menu Grid */}
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="flex-1 overflow-y-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                     {filteredItems.map((item) => (
                         <div key={item.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col hover:shadow-md transition-shadow duration-200 group relative">
                             {!item.isAvailable && (
