@@ -137,7 +137,7 @@ const Inventory = () => {
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden overflow-x-auto transition-colors">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-700/50">
                         <tr>
@@ -243,6 +243,7 @@ const Inventory = () => {
                                         step="0.01"
                                         value={formData.currentStock}
                                         onChange={(e) => setFormData({ ...formData, currentStock: Number(e.target.value) })}
+                                        onFocus={(e) => e.target.select()}
                                         className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                                     />
                                 </div>

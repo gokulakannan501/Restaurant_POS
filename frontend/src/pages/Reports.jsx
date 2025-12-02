@@ -75,25 +75,25 @@ const Reports = () => {
 
     return (
         <div className="bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg p-6 transition-all duration-300">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 gap-4">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports & Analytics</h1>
-                <div className="flex space-x-4">
-                    <div className="flex items-center space-x-2">
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
                         <input
                             type="date"
                             value={dateRange.startDate}
                             onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
-                            className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                            className="px-3 py-1.5 rounded-md border-0 bg-transparent text-gray-900 dark:text-white focus:ring-0 text-sm"
                         />
-                        <span className="text-gray-500 dark:text-gray-400">to</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">to</span>
                         <input
                             type="date"
                             value={dateRange.endDate}
                             onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
-                            className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                            className="px-3 py-1.5 rounded-md border-0 bg-transparent text-gray-900 dark:text-white focus:ring-0 text-sm"
                         />
                     </div>
-                    <button onClick={handleExport} className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+                    <button onClick={handleExport} className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center shadow-lg shadow-primary-600/30">
                         <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>

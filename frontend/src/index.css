@@ -104,6 +104,7 @@
   #receipt-area,
   #receipt-area * {
     visibility: visible;
+    color: black !important;
   }
 
   #receipt-area {
@@ -112,21 +113,38 @@
     top: 0;
     width: 100%;
     margin: 0;
-    padding: 10px;
+    padding: 20px;
     box-shadow: none;
     border: none;
     background: white;
-    color: black;
     overflow: visible !important;
     height: auto !important;
     display: block !important;
+    font-size: 12px;
   }
 
-  /* Ensure text is black for printing */
-  #receipt-area .text-gray-500,
-  #receipt-area .text-gray-600,
-  #receipt-area .text-gray-900 {
-    color: black !important;
+  /* Specific print overrides */
+  #receipt-area h1 {
+    font-size: 18px !important;
+    margin-bottom: 5px !important;
+  }
+
+  #receipt-area p {
+    font-size: 10px !important;
+    margin-bottom: 2px !important;
+  }
+
+  /* Ensure flex layouts work in print */
+  #receipt-area .flex {
+    display: flex !important;
+  }
+
+  #receipt-area .justify-between {
+    justify-content: space-between !important;
+  }
+
+  #receipt-area .text-right {
+    text-align: right !important;
   }
 
   /* Hide scrollbars */
