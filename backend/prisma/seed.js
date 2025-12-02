@@ -8,6 +8,15 @@ async function main() {
   const password = 'tempPassword123'; // Temporary password
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  // Delete all users except the default admin
+  await prisma.user.deleteMany({
+    where: {
+      email: {
+        not: email,
+      },
+    },
+  });
+
   const admin = await prisma.user.upsert({
     where: { email },
     update: {},
