@@ -10,7 +10,7 @@ export const login = async (req, res) => {
         where: { email },
     });
 
-    if (!user || !user.isActive) {
+    if (!user || !user.isActive || user.isDeleted) {
         return res.status(401).json({
             success: false,
             message: 'Invalid credentials or account inactive',
@@ -174,6 +174,9 @@ export const updateUser = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     const users = await prisma.user.findMany({
+        where: {
+            isDeleted: false,
+        },
         select: {
             id: true,
             name: true,
@@ -244,8 +247,23 @@ export const deleteUser = async (req, res) => {
         });
     }
 
-    await prisma.user.delete({
+    // Soft delete: set isDeleted to true and rename email to free it up
+    const user = await prisma.user.findUnique({ where: { id } });
+
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: 'User not found',
+        });
+    }
+
+    await prisma.user.update({
         where: { id },
+        data: {
+            isDeleted: true,
+            isActive: false,
+            email: `deleted_${Date.now()}_${user.email}`
+        },
     });
 
     res.json({

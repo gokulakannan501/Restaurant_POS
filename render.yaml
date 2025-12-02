@@ -24,7 +24,7 @@ services:
       - key: SMTP_USER
         value: theclassicrestaurantinfo@gmail.com
       - key: SMTP_PASS
-        sync: false
+        value: pkrmvvgbvuthyult
       - key: SMTP_FROM
         value: The Classic Restaurant <theclassicrestaurantinfo@gmail.com>
 

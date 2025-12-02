@@ -19,6 +19,7 @@ model User {
   role         String   @default("WAITER") // ADMIN, MANAGER, CASHIER, WAITER
   permissions  String?  // JSON string of allowed pages/features
   isActive     Boolean  @default(true)
+  isDeleted    Boolean  @default(false)
   isFirstLogin Boolean  @default(false) // True for new users who need to set password
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
