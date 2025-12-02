@@ -5,7 +5,7 @@ export const getAllMenuItems = async (req, res) => {
     const { page, limit, skip } = getPagination(req.query);
     const { categoryId, isAvailable, search } = req.query;
 
-    const where = {};
+    const where = { isDeleted: false };
     if (categoryId) where.categoryId = categoryId;
     if (isAvailable !== undefined) where.isAvailable = isAvailable === 'true';
     if (search) {
@@ -131,8 +131,10 @@ export const updateMenuItem = async (req, res) => {
 export const deleteMenuItem = async (req, res) => {
     const { id } = req.params;
 
-    await prisma.menuItem.delete({
+    // Soft delete: set isDeleted to true instead of removing from database
+    await prisma.menuItem.update({
         where: { id },
+        data: { isDeleted: true },
     });
 
     res.json({

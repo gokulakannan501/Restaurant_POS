@@ -79,16 +79,16 @@ const Orders = () => {
 
     return (
         <div className="bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg p-6 transition-all duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-4">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Orders</h1>
 
-                <div className="mt-4 sm:mt-0 flex space-x-4">
-                    <div className="flex bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-1">
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-1 overflow-x-auto">
                         {['ACTIVE', 'COMPLETED', 'CANCELLED'].map((status) => (
                             <button
                                 key={status}
                                 onClick={() => setFilter(status)}
-                                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === status
+                                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${filter === status
                                     ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 shadow-sm'
                                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                                     }`}
@@ -100,7 +100,7 @@ const Orders = () => {
 
                     <button
                         onClick={() => navigate('/menu')}
-                        className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30"
+                        className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30 whitespace-nowrap"
                     >
                         New Order
                     </button>
@@ -112,8 +112,8 @@ const Orders = () => {
                     <div
                         key={order.id}
                         className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border overflow-hidden flex flex-col hover:shadow-md transition-all duration-200 ${highlightedId === order.id
-                                ? 'border-primary-500 ring-2 ring-primary-500 ring-opacity-50 scale-105 z-10'
-                                : 'border-gray-100 dark:border-gray-700'
+                            ? 'border-primary-500 ring-2 ring-primary-500 ring-opacity-50 scale-105 z-10'
+                            : 'border-gray-100 dark:border-gray-700'
                             }`}
                     >
                         <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-start bg-gray-50 dark:bg-gray-800/50">

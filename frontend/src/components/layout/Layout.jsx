@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
+import logo from '../../assets/logo.jpg';
 
 const Layout = () => {
     const { user, logout } = useAuthStore();
@@ -52,7 +53,10 @@ const Layout = () => {
         <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
             {/* Mobile Header */}
             <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-gray-700 z-30 flex items-center justify-between px-4">
-                <h1 className="text-lg font-bold text-primary-600 dark:text-dark-text">The Classic Restaurant</h1>
+                <div className="flex items-center gap-2">
+                    <img src={logo} alt="Logo" className="h-10 w-auto object-contain" />
+                    <h1 className="text-lg font-bold text-primary-600 dark:text-dark-text">The Classic Restaurant</h1>
+                </div>
                 <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -83,7 +87,8 @@ const Layout = () => {
                 lg:translate-x-0
             `}>
                 {/* Desktop Header */}
-                <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-700">
+                <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-700 gap-3">
+                    <img src={logo} alt="Logo" className="h-10 w-auto object-contain" />
                     <h1 className="text-lg font-bold text-primary-600 dark:text-dark-text">The Classic Restaurant</h1>
                 </div>
 

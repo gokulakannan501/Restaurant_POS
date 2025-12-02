@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 
+import logo from '../../assets/logo.jpg';
+
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { login, isLoading, error } = useAuthStore();
+    const { login, isLoading, error, clearError } = useAuthStore();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -16,6 +18,16 @@ const Login = () => {
         }
     };
 
+    const handleEmailChange = (e) => {
+        setEmail(e.target.value);
+        if (error) clearError();
+    };
+
+    const handlePasswordChange = (e) => {
+        setPassword(e.target.value);
+        if (error) clearError();
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 p-4">
             <div className="absolute inset-0 bg-black opacity-20"></div>
@@ -24,6 +36,7 @@ const Login = () => {
                 <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-2xl p-6 sm:p-8 backdrop-blur-lg bg-opacity-95">
                     {/* Header */}
                     <div className="text-center mb-6 sm:mb-8">
+                        <img src={logo} alt="Logo" className="h-16 w-auto mx-auto mb-4 object-contain" />
                         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                             The Classic Restaurant
                         </h1>
@@ -49,7 +62,7 @@ const Login = () => {
                                 id="email"
                                 type="email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={handleEmailChange}
                                 required
                                 className="w-full px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base"
                                 placeholder="you@example.com"
@@ -64,7 +77,7 @@ const Login = () => {
                                 id="password"
                                 type="password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={handlePasswordChange}
                                 required
                                 className="w-full px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base"
                                 placeholder="••••••••"

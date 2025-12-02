@@ -232,14 +232,18 @@ export const exportReportToCSV = async (req, res) => {
                     select: {
                         orderNumber: true,
                         type: true,
+                        customerName: true,
+                        customerPhone: true,
                     },
                 },
             },
         });
 
-        csvData = 'Bill Number,Order Number,Order Type,Subtotal,Tax,Discount,Total,Payment Mode,Date\n';
+        csvData = 'Bill Number,Order Number,Order Type,Customer Name,Customer Phone,Subtotal,Tax,Discount,Total,Payment Mode,Date\n';
         bills.forEach(bill => {
-            csvData += `${bill.billNumber},${bill.order.orderNumber},${bill.order.type},${bill.subtotal},${bill.taxAmount},${bill.discount},${bill.totalAmount},${bill.paymentMode},${bill.createdAt.toISOString()}\n`;
+            const customerName = bill.order.customerName || 'N/A';
+            const customerPhone = bill.order.customerPhone || 'N/A';
+            csvData += `${bill.billNumber},${bill.order.orderNumber},${bill.order.type},"${customerName}","${customerPhone}",${bill.subtotal},${bill.taxAmount},${bill.discount},${bill.totalAmount},${bill.paymentMode},${bill.createdAt.toISOString()}\n`;
         });
 
         const dateStr = startDate || new Date().toISOString().split('T')[0];

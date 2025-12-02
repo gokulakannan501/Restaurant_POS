@@ -7,23 +7,24 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id          String   @id @default(uuid())
-  name        String
-  email       String   @unique
-  password    String
-  role        String   @default("WAITER") // ADMIN, MANAGER, CASHIER, WAITER
-  permissions Json?    // Array of allowed pages/features
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+  role         String   @default("WAITER") // ADMIN, MANAGER, CASHIER, WAITER
+  permissions  String?  // JSON string of allowed pages/features
+  isActive     Boolean  @default(true)
+  isFirstLogin Boolean  @default(false) // True for new users who need to set password
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  orders    Order[]
-  bills     Bill[]
+  orders Order[]
+  bills  Bill[]
 
   @@index([email])
 }
@@ -49,6 +50,7 @@ model MenuItem {
   categoryId  String
   isAvailable Boolean  @default(true)
   isVeg       Boolean  @default(true)
+  isDeleted   Boolean  @default(false) // Soft delete flag
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

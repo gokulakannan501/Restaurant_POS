@@ -60,7 +60,7 @@ export const getInventoryItemById = async (req, res) => {
 };
 
 export const createInventoryItem = async (req, res) => {
-    const { menuItemId, name, unit, currentStock, minStock, maxStock } = req.body;
+    const { menuItemId, name, unit, currentStock, minStock, maxStock, lastRestocked } = req.body;
 
     const item = await prisma.inventoryItem.create({
         data: {
@@ -70,7 +70,7 @@ export const createInventoryItem = async (req, res) => {
             currentStock,
             minStock,
             maxStock,
-            lastRestocked: new Date(),
+            lastRestocked: lastRestocked ? new Date(lastRestocked) : new Date(),
         },
         include: {
             menuItem: true,
@@ -85,17 +85,21 @@ export const createInventoryItem = async (req, res) => {
 
 export const updateInventoryItem = async (req, res) => {
     const { id } = req.params;
-    const { name, unit, currentStock, minStock, maxStock } = req.body;
+    const { name, unit, currentStock, minStock, maxStock, lastRestocked } = req.body;
 
     const data = {};
     if (name) data.name = name;
     if (unit) data.unit = unit;
     if (currentStock !== undefined) {
         data.currentStock = currentStock;
-        data.lastRestocked = new Date();
+        // Only update lastRestocked automatically if not provided explicitly
+        if (!lastRestocked) {
+            data.lastRestocked = new Date();
+        }
     }
     if (minStock !== undefined) data.minStock = minStock;
     if (maxStock !== undefined) data.maxStock = maxStock;
+    if (lastRestocked) data.lastRestocked = new Date(lastRestocked);
 
     const item = await prisma.inventoryItem.update({
         where: { id },
@@ -175,4 +179,52 @@ export const restockItem = async (req, res) => {
         success: true,
         data: updatedItem,
     });
+};
+
+export const exportInventoryCSV = async (req, res) => {
+    try {
+        const items = await prisma.inventoryItem.findMany({
+            include: {
+                menuItem: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
+            orderBy: {
+                name: 'asc',
+            },
+        });
+
+        // Create CSV content
+        const headers = ['Item Name', 'Unit', 'Current Stock', 'Min Stock', 'Max Stock', 'Last Restocked', 'Status'];
+        const rows = items.map(item => {
+            const status = item.currentStock <= item.minStock ? 'Low Stock' :
+                item.maxStock && item.currentStock >= item.maxStock ? 'Overstocked' : 'Normal';
+            return [
+                item.name,
+                item.unit,
+                item.currentStock,
+                item.minStock,
+                item.maxStock || 'N/A',
+                item.lastRestocked ? new Date(item.lastRestocked).toLocaleString() : 'Never',
+                status
+            ];
+        });
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename=inventory-${new Date().toISOString().split('T')[0]}.csv`);
+        res.send(csvContent);
+    } catch (error) {
+        console.error('Error exporting inventory CSV:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to export inventory',
+        });
+    }
 };

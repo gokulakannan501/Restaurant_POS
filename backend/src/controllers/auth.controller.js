@@ -36,7 +36,8 @@ export const login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                permissions: user.permissions,
+                permissions: user.permissions ? JSON.parse(user.permissions) : [],
+                isFirstLogin: user.isFirstLogin,
             },
             token,
         },
@@ -60,13 +61,17 @@ export const getCurrentUser = async (req, res) => {
             role: true,
             permissions: true,
             isActive: true,
+            isFirstLogin: true,
             createdAt: true,
         },
     });
 
     res.json({
         success: true,
-        data: user,
+        data: {
+            ...user,
+            permissions: user.permissions ? JSON.parse(user.permissions) : [],
+        },
     });
 };
 
@@ -92,7 +97,8 @@ export const createUser = async (req, res) => {
             email,
             password: hashedPassword,
             role,
-            permissions: permissions || [],
+            permissions: permissions ? JSON.stringify(permissions) : null,
+            isFirstLogin: true, // New users must change password on first login
         },
         select: {
             id: true,
@@ -101,9 +107,16 @@ export const createUser = async (req, res) => {
             role: true,
             permissions: true,
             isActive: true,
+            isFirstLogin: true,
             createdAt: true,
         },
     });
+
+    // Parse permissions for response
+    const responseUser = {
+        ...user,
+        permissions: user.permissions ? JSON.parse(user.permissions) : [],
+    };
 
     // Send email with temporary password
     try {
@@ -115,7 +128,7 @@ export const createUser = async (req, res) => {
 
     res.status(201).json({
         success: true,
-        data: user,
+        data: responseUser,
         message: 'User created successfully. Email sent with credentials.',
     });
 };
@@ -127,9 +140,12 @@ export const updateUser = async (req, res) => {
     const data = {};
     if (name) data.name = name;
     if (email) data.email = email;
-    if (password) data.password = await bcrypt.hash(password, 10);
+    if (password) {
+        data.password = await bcrypt.hash(password, 10);
+        data.isFirstLogin = false; // Password has been changed
+    }
     if (role) data.role = role;
-    if (permissions) data.permissions = permissions;
+    if (permissions) data.permissions = JSON.stringify(permissions);
     if (typeof isActive === 'boolean') data.isActive = isActive;
 
     const user = await prisma.user.update({
@@ -142,13 +158,17 @@ export const updateUser = async (req, res) => {
             role: true,
             permissions: true,
             isActive: true,
+            isFirstLogin: true,
             updatedAt: true,
         },
     });
 
     res.json({
         success: true,
-        data: user,
+        data: {
+            ...user,
+            permissions: user.permissions ? JSON.parse(user.permissions) : [],
+        },
     });
 };
 
@@ -161,6 +181,7 @@ export const getAllUsers = async (req, res) => {
             role: true,
             permissions: true,
             isActive: true,
+            isFirstLogin: true,
             createdAt: true,
         },
         orderBy: {
@@ -170,7 +191,10 @@ export const getAllUsers = async (req, res) => {
 
     res.json({
         success: true,
-        data: users,
+        data: users.map(user => ({
+            ...user,
+            permissions: user.permissions ? JSON.parse(user.permissions) : [],
+        })),
     });
 };
 
@@ -182,23 +206,50 @@ export const changePassword = async (req, res) => {
         where: { id: userId },
     });
 
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) {
-        return res.status(400).json({
-            success: false,
-            message: 'Incorrect current password',
-        });
+    // If it's the user's first login, skip current password validation
+    if (!user.isFirstLogin) {
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                message: 'Incorrect current password',
+            });
+        }
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.user.update({
         where: { id: userId },
-        data: { password: hashedPassword },
+        data: {
+            password: hashedPassword,
+            isFirstLogin: false,
+        },
     });
 
     res.json({
         success: true,
         message: 'Password updated successfully',
+    });
+};
+
+export const deleteUser = async (req, res) => {
+    const { id } = req.params;
+
+    // Prevent deleting self
+    if (id === req.user.id) {
+        return res.status(400).json({
+            success: false,
+            message: 'Cannot delete your own account',
+        });
+    }
+
+    await prisma.user.delete({
+        where: { id },
+    });
+
+    res.json({
+        success: true,
+        message: 'User deleted successfully',
     });
 };

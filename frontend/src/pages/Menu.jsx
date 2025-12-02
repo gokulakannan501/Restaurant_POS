@@ -353,6 +353,37 @@ const Menu = () => {
                                     <span className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold">Unavailable</span>
                                 </div>
                             )}
+                            {isAdminOrManager && (
+                                <div className="absolute top-2 left-2 flex space-x-1 z-20">
+                                    <button
+                                        onClick={() => handleOpenModal(item)}
+                                        className="bg-blue-600 text-white p-1.5 rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+                                        title="Edit"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={() => handleToggleAvailability(item)}
+                                        className={`${item.isAvailable ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'} text-white p-1.5 rounded-lg transition-colors shadow-lg`}
+                                        title={item.isAvailable ? 'Mark Unavailable' : 'Mark Available'}
+                                    >
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.isAvailable ? "M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" : "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"} />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(item.id)}
+                                        className="bg-red-600 text-white p-1.5 rounded-lg hover:bg-red-700 transition-colors shadow-lg"
+                                        title="Delete"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
                             <div className="h-40 bg-gray-200 dark:bg-gray-700 relative overflow-hidden">
                                 {item.image ? (
                                     <img src={item.image.startsWith('http') ? item.image : `${BASE_URL}${item.image}`} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -371,37 +402,7 @@ const Menu = () => {
                                         {item.isVeg ? 'VEG' : 'NON-VEG'}
                                     </span>
                                 </div>
-                                {isAdminOrManager && (
-                                    <div className="absolute top-2 left-2 flex space-x-1">
-                                        <button
-                                            onClick={() => handleOpenModal(item)}
-                                            className="bg-blue-600 text-white p-1.5 rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
-                                            title="Edit"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                        </button>
-                                        <button
-                                            onClick={() => handleToggleAvailability(item)}
-                                            className={`${item.isAvailable ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'} text-white p-1.5 rounded-lg transition-colors shadow-lg`}
-                                            title={item.isAvailable ? 'Mark Unavailable' : 'Mark Available'}
-                                        >
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.isAvailable ? "M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" : "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"} />
-                                            </svg>
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(item.id)}
-                                            className="bg-red-600 text-white p-1.5 rounded-lg hover:bg-red-700 transition-colors shadow-lg"
-                                            title="Delete"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                )}
+
                             </div>
 
                             <div className="p-4 flex-1 flex flex-col">

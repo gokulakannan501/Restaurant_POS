@@ -16,7 +16,7 @@ async function main() {
       email,
       password: hashedPassword,
       role: 'ADMIN',
-      permissions: ['dashboard', 'menu', 'orders', 'billing', 'reports', 'settings', 'users'],
+      permissions: JSON.stringify(['dashboard', 'menu', 'orders', 'billing', 'reports', 'settings', 'users']),
     },
   });
 

@@ -21,7 +21,8 @@ const Inventory = () => {
         unit: 'kg',
         currentStock: 0,
         minStock: 0,
-        maxStock: 0
+        maxStock: 0,
+        lastRestocked: null
     });
 
     useEffect(() => {
@@ -70,7 +71,8 @@ const Inventory = () => {
             unit: item.unit,
             currentStock: item.currentStock,
             minStock: item.minStock,
-            maxStock: item.maxStock || 0
+            maxStock: item.maxStock || 0,
+            lastRestocked: item.lastRestocked
         });
         setIsModalOpen(true);
     };
@@ -99,6 +101,24 @@ const Inventory = () => {
         }
     };
 
+    const handleExportCSV = async () => {
+        try {
+            const response = await api.get('/inventory/export/csv', {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `inventory-${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Error exporting CSV:', error);
+            toast.error('Failed to export CSV');
+        }
+    };
+
     if (loading && !isModalOpen) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -109,9 +129,9 @@ const Inventory = () => {
 
     return (
         <div className="bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg p-6 transition-all duration-300">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Inventory Management</h1>
-                <div className="flex space-x-4">
+                <div className="flex flex-wrap items-center gap-4">
                     <div className="flex items-center space-x-2">
                         <input
                             type="checkbox"
@@ -125,9 +145,18 @@ const Inventory = () => {
                         </label>
                     </div>
                     <button
+                        onClick={handleExportCSV}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-green-600/30 flex items-center gap-2"
+                    >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export CSV
+                    </button>
+                    <button
                         onClick={() => {
                             setEditingItem(null);
-                            setFormData({ name: '', unit: 'kg', currentStock: 0, minStock: 0, maxStock: 0 });
+                            setFormData({ name: '', unit: 'kg', currentStock: 0, minStock: 0, maxStock: 0, lastRestocked: null });
                             setIsModalOpen(true);
                         }}
                         className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30"
@@ -208,8 +237,8 @@ const Inventory = () => {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-700">
+                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-[60] p-4 overflow-y-auto">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-700 m-auto">
                         <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">{editingItem ? 'Edit Item' : 'Add New Item'}</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
@@ -273,6 +302,15 @@ const Inventory = () => {
                                     />
                                 </div>
                             </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Restocked (Optional)</label>
+                                <input
+                                    type="date"
+                                    value={formData.lastRestocked ? new Date(formData.lastRestocked).toISOString().split('T')[0] : ''}
+                                    onChange={(e) => setFormData({ ...formData, lastRestocked: e.target.value ? new Date(e.target.value) : null })}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                                />
+                            </div>
                             <div className="flex justify-end space-x-3 mt-6">
                                 <button
                                     type="button"
@@ -291,8 +329,8 @@ const Inventory = () => {
             )}
             {/* Restock Modal */}
             {restockModal.isOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full shadow-2xl border border-gray-200 dark:border-gray-700">
+                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full shadow-2xl border border-gray-200 dark:border-gray-700 m-auto">
                         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Add Stock</h2>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                             Adding stock for <span className="font-bold text-gray-900 dark:text-white">{restockModal.itemName}</span>

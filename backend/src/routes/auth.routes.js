@@ -7,6 +7,7 @@ import {
     updateUser,
     getAllUsers,
     changePassword,
+    deleteUser,
 } from '../controllers/auth.controller.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -21,5 +22,6 @@ router.post('/change-password', authenticate, validate(changePasswordSchema), ch
 router.get('/users', authenticate, authorize('ADMIN', 'MANAGER'), getAllUsers);
 router.post('/users', authenticate, authorize('ADMIN'), validate(createUserSchema), createUser);
 router.put('/users/:id', authenticate, authorize('ADMIN'), validate(updateUserSchema), updateUser);
+router.delete('/users/:id', authenticate, authorize('ADMIN'), deleteUser);
 
 export default router;
