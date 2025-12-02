@@ -8,6 +8,12 @@ const Inventory = () => {
     const [showLowStock, setShowLowStock] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    const [restockModal, setRestockModal] = useState({
+        isOpen: false,
+        itemId: null,
+        itemName: '',
+        quantity: ''
+    });
 
     // Form state
     const [formData, setFormData] = useState({
@@ -85,6 +91,7 @@ const Inventory = () => {
         try {
             await api.post(`/inventory/${id}/restock`, { quantity: Number(quantity) });
             toast.success('Stock updated');
+            setRestockModal({ isOpen: false, itemId: null, itemName: '', quantity: '' });
             fetchInventory();
         } catch (error) {
             console.error('Error restocking:', error);
@@ -152,10 +159,12 @@ const Inventory = () => {
                                     <div className="flex items-center space-x-2">
                                         <span className="text-sm text-gray-900 dark:text-white font-medium">{item.currentStock}</span>
                                         <button
-                                            onClick={() => {
-                                                const qty = prompt('Enter quantity to add:');
-                                                if (qty) handleRestock(item.id, qty);
-                                            }}
+                                            onClick={() => setRestockModal({
+                                                isOpen: true,
+                                                itemId: item.id,
+                                                itemName: item.name,
+                                                quantity: ''
+                                            })}
                                             className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 text-xs font-medium"
                                         >
                                             + Add
@@ -273,6 +282,48 @@ const Inventory = () => {
                                 </button>
                                 <button type="submit" className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30">
                                     Save
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+            {/* Restock Modal */}
+            {restockModal.isOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full shadow-2xl border border-gray-200 dark:border-gray-700">
+                        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Add Stock</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                            Adding stock for <span className="font-bold text-gray-900 dark:text-white">{restockModal.itemName}</span>
+                        </p>
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            handleRestock(restockModal.itemId, restockModal.quantity);
+                        }} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity to Add</label>
+                                <input
+                                    type="number"
+                                    required
+                                    min="0.01"
+                                    step="0.01"
+                                    autoFocus
+                                    value={restockModal.quantity}
+                                    onChange={(e) => setRestockModal({ ...restockModal, quantity: e.target.value })}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                                    placeholder="Enter quantity"
+                                />
+                            </div>
+                            <div className="flex justify-end space-x-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setRestockModal({ isOpen: false, itemId: null, itemName: '', quantity: '' })}
+                                    className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button type="submit" className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30">
+                                    Add Stock
                                 </button>
                             </div>
                         </form>

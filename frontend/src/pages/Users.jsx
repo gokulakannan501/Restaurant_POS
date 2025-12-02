@@ -144,7 +144,7 @@ const Users = () => {
             </div>
 
             {/* Users Table */}
-            <div className="bg-white dark:bg-dark-surface rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="bg-white dark:bg-dark-surface rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden overflow-x-auto">
                 <table className="w-full">
                     <thead className="bg-gray-50 dark:bg-gray-800">
                         <tr>
@@ -171,8 +171,8 @@ const Users = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.isActive
-                                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                                            : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                                        ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                                        : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                                         }`}>
                                         {user.isActive ? 'Active' : 'Inactive'}
                                     </span>

@@ -95,9 +95,9 @@ const Billing = () => {
     };
 
     return (
-        <div className="h-[calc(100vh-6rem)] flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-6rem)]">
             {/* Sidebar List */}
-            <div className="w-full md:w-1/3 bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300">
+            <div className={`w-full lg:w-1/3 bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300 ${selectedBill ? 'hidden lg:flex' : 'flex'}`}>
                 <div className="p-4 border-b border-gray-100 dark:border-gray-700">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Bills</h2>
 
@@ -178,20 +178,30 @@ const Billing = () => {
             </div>
 
             {/* Bill Details / Receipt */}
-            <div className="w-full md:w-2/3 bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300">
+            <div className={`w-full lg:w-2/3 bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300 ${selectedBill ? 'flex' : 'hidden lg:flex'}`}>
                 {selectedBill ? (
                     <div className="flex-1 flex flex-col h-full">
-                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">
-                            <div>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Bill Details</h2>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">ID: {selectedBill.billNumber}</p>
+                        <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">
+                            <div className="flex items-center">
+                                <button
+                                    onClick={() => setSelectedBill(null)}
+                                    className="lg:hidden mr-3 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                    <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                <div>
+                                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Bill Details</h2>
+                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">ID: {selectedBill.billNumber}</p>
+                                </div>
                             </div>
                             <div className="flex space-x-2">
-                                <button onClick={handlePrint} className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
-                                    <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <button onClick={handlePrint} className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors flex items-center text-sm sm:text-base">
+                                    <svg className="w-5 h-5 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                     </svg>
-                                    Print
+                                    <span className="hidden sm:inline">Print</span>
                                 </button>
                             </div>
                         </div>

@@ -270,21 +270,21 @@ const Menu = () => {
                             <>
                                 <button
                                     onClick={() => handleOpenCategoryModal()}
-                                    className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-green-600/30 flex items-center justify-center text-sm"
+                                    className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-green-600/30 flex items-center justify-center text-sm whitespace-nowrap"
                                 >
-                                    <svg className="w-4 h-4 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                     </svg>
-                                    <span className="hidden sm:inline">Add Category</span>
+                                    Add Category
                                 </button>
                                 <button
                                     onClick={() => handleOpenModal()}
-                                    className="flex-1 sm:flex-none bg-primary-600 hover:bg-primary-700 text-white px-3 sm:px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30 flex items-center justify-center text-sm"
+                                    className="flex-1 sm:flex-none bg-primary-600 hover:bg-primary-700 text-white px-3 sm:px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30 flex items-center justify-center text-sm whitespace-nowrap"
                                 >
-                                    <svg className="w-4 h-4 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                     </svg>
-                                    <span className="hidden sm:inline">Add Item</span>
+                                    Add Item
                                 </button>
                             </>
                         )}
@@ -308,8 +308,8 @@ const Menu = () => {
                 <button
                     onClick={() => setActiveCategory('ALL')}
                     className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 ${activeCategory === 'ALL'
-                            ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent'
+                        ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent'
                         }`}
                 >
                     All Items
@@ -319,8 +319,8 @@ const Menu = () => {
                         <button
                             onClick={() => setActiveCategory(cat.id)}
                             className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeCategory === cat.id
-                                    ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent'
+                                ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent'
                                 }`}
                         >
                             {cat.name}
