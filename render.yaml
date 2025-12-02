@@ -17,6 +17,16 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        value: theclassicrestaurantinfo@gmail.com
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        value: The Classic Restaurant <theclassicrestaurantinfo@gmail.com>
 
   # Frontend Service
   - type: static
