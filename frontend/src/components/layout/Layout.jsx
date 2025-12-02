@@ -52,7 +52,7 @@ const Layout = () => {
         <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
             {/* Mobile Header */}
             <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-gray-700 z-30 flex items-center justify-between px-4">
-                <h1 className="text-xl font-bold text-primary-600 dark:text-dark-text">Restaurant POS</h1>
+                <h1 className="text-lg font-bold text-primary-600 dark:text-dark-text">The Classic Restaurant</h1>
                 <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -84,7 +84,7 @@ const Layout = () => {
             `}>
                 {/* Desktop Header */}
                 <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-700">
-                    <h1 className="text-xl font-bold text-primary-600 dark:text-dark-text">Restaurant POS</h1>
+                    <h1 className="text-lg font-bold text-primary-600 dark:text-dark-text">The Classic Restaurant</h1>
                 </div>
 
                 {/* Navigation */}
@@ -95,8 +95,8 @@ const Layout = () => {
                             to={item.path}
                             onClick={closeSidebar}
                             className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${location.pathname === item.path
-                                    ? 'bg-primary-50 text-primary-700 dark:bg-gray-800 dark:text-primary-400'
-                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                ? 'bg-primary-50 text-primary-700 dark:bg-gray-800 dark:text-primary-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                                 }`}
                         >
                             {item.label}
@@ -105,31 +105,40 @@ const Layout = () => {
                 </nav>
 
                 {/* Footer */}
-                <div className="absolute bottom-0 w-full p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface">
+                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-surface space-y-3">
+                    {/* Profile Link */}
                     <Link
                         to="/profile"
                         onClick={closeSidebar}
-                        className="flex items-center mb-4 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
-                        <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-gray-700 flex items-center justify-center text-primary-700 dark:text-primary-400 font-bold">
+                        <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-gray-700 flex items-center justify-center text-primary-700 dark:text-primary-400 font-bold text-lg flex-shrink-0">
                             {user?.name?.charAt(0)}
                         </div>
-                        <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+                        <div className="ml-3 flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user?.name}</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role?.toLowerCase()}</p>
                         </div>
                     </Link>
+
+                    {/* Theme Toggle Button */}
                     <button
                         onClick={toggleTheme}
-                        className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors mb-2"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                     >
-                        {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+                        <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+                        <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
                     </button>
+
+                    {/* Logout Button */}
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                     >
-                        Logout
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Logout</span>
                     </button>
                 </div>
             </aside>
