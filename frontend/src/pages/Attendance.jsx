@@ -160,13 +160,13 @@ const Attendance = () => {
                     </div>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full">
+                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead className="bg-gray-50 dark:bg-gray-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Employee</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Role</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Notes</th>
+                                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Employee</th>
+                                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Role</th>
+                                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
+                                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Notes</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -174,15 +174,15 @@ const Attendance = () => {
                                     const userAttendance = attendanceData[user.id] || {};
                                     return (
                                         <tr key={user.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white font-medium">{user.name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{user.role}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white font-medium">{user.name}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{user.role}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                                                 <div className="flex space-x-2">
                                                     <button
                                                         onClick={() => handleMarkAttendance(user.id, 'PRESENT')}
                                                         className={`px-3 py-1 rounded-full text-xs font-bold ${userAttendance.status === 'PRESENT'
-                                                                ? 'bg-green-100 text-green-800 border border-green-200'
-                                                                : 'bg-gray-100 text-gray-400 border border-gray-200'
+                                                            ? 'bg-green-100 text-green-800 border border-green-200'
+                                                            : 'bg-gray-100 text-gray-400 border border-gray-200'
                                                             }`}
                                                     >
                                                         Present
@@ -190,15 +190,15 @@ const Attendance = () => {
                                                     <button
                                                         onClick={() => handleMarkAttendance(user.id, 'ABSENT')}
                                                         className={`px-3 py-1 rounded-full text-xs font-bold ${userAttendance.status === 'ABSENT'
-                                                                ? 'bg-red-100 text-red-800 border border-red-200'
-                                                                : 'bg-gray-100 text-gray-400 border border-gray-200'
+                                                            ? 'bg-red-100 text-red-800 border border-red-200'
+                                                            : 'bg-gray-100 text-gray-400 border border-gray-200'
                                                             }`}
                                                     >
                                                         Absent
                                                     </button>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                                                 <input
                                                     type="text"
                                                     placeholder="Add note..."
@@ -262,24 +262,24 @@ const Attendance = () => {
 
                     {reportData && (
                         <div className="overflow-x-auto">
-                            <table className="w-full">
+                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead className="bg-gray-50 dark:bg-gray-700">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Employee</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Days</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Present</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Hours</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Avg Hours</th>
+                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Employee</th>
+                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Days</th>
+                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Present</th>
+                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Hours</th>
+                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Avg Hours</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                     {reportData.report.map((row, index) => (
                                         <tr key={index}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white font-medium">{row.userName}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{row.totalDays}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-green-600 font-medium">{row.presentDays}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{row.totalHours.toFixed(1)}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{row.averageHours.toFixed(1)}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white font-medium">{row.userName}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{row.totalDays}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-green-600 font-medium">{row.presentDays}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{row.totalHours.toFixed(1)}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{row.averageHours.toFixed(1)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
