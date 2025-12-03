@@ -215,7 +215,7 @@ export const changePassword = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({
                 success: false,
-                message: 'Incorrect current password',
+                message: `Incorrect current password. (First Login: ${user.isFirstLogin})`,
             });
         }
     }
