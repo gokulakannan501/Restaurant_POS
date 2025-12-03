@@ -1,45 +1,27 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: 587, // Force 587 for STARTTLS
-    secure: false, // Must be false for 587
-    requireTLS: true, // Force STARTTLS
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
-    tls: {
-        ciphers: 'SSLv3',
-        rejectUnauthorized: false
-    },
-    connectionTimeout: 30000, // 30 seconds
-    socketTimeout: 30000, // 30 seconds
-    debug: true,
-    logger: true
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendEmail = async (to, subject, html) => {
     try {
-        if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-            console.log('SMTP credentials not found. Email content:');
-            console.log(`To: ${to}`);
-            console.log(`Subject: ${subject}`);
-            console.log(`HTML: ${html}`);
+        if (!process.env.RESEND_API_KEY) {
+            console.log("RESEND API key missing. Dumping email content:");
+            console.log({ to, subject, html });
             return false;
         }
 
-        const info = await transporter.sendMail({
-            from: process.env.SMTP_FROM || '"Restaurant POS" <noreply@restaurantpos.com>',
+        const response = await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
             to,
             subject,
             html,
         });
 
-        console.log('Message sent: %s', info.messageId);
+        console.log("Email sent:", response.id || response);
         return true;
+
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.error("Error sending email:", error);
         return false;
     }
 };
