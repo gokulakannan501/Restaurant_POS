@@ -107,7 +107,7 @@ function App() {
                     } />
 
                     <Route path="/attendance" element={
-                        <ProtectedRoute>
+                        <ProtectedRoute requiredPermission="attendance">
                             <Attendance />
                         </ProtectedRoute>
                     } />

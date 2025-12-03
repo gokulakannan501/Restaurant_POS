@@ -27,13 +27,14 @@ const Users = () => {
         { value: 'reports', label: 'Reports' },
         { value: 'settings', label: 'Settings' },
         { value: 'users', label: 'User Management' },
+        { value: 'attendance', label: 'Attendance' },
     ];
 
     const rolePermissions = {
-        ADMIN: ['dashboard', 'tables', 'menu', 'orders', 'billing', 'inventory', 'reports', 'settings', 'users'],
-        MANAGER: ['dashboard', 'tables', 'menu', 'orders', 'billing', 'inventory', 'reports', 'settings'],
-        CASHIER: ['dashboard', 'tables', 'menu', 'orders', 'billing'],
-        WAITER: ['dashboard', 'tables', 'menu', 'orders'],
+        ADMIN: ['dashboard', 'tables', 'menu', 'orders', 'billing', 'inventory', 'reports', 'settings', 'users', 'attendance'],
+        MANAGER: ['dashboard', 'tables', 'menu', 'orders', 'billing', 'inventory', 'reports', 'settings', 'attendance'],
+        CASHIER: ['dashboard', 'tables', 'menu', 'orders', 'billing', 'attendance'],
+        WAITER: ['dashboard', 'tables', 'menu', 'orders', 'attendance'],
     };
 
     useEffect(() => {

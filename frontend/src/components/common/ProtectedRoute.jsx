@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 
-const ProtectedRoute = ({ children, allowedRoles = [] }) => {
+const ProtectedRoute = ({ children, allowedRoles = [], ...props }) => {
     const { isAuthenticated, user, isLoading } = useAuthStore();
     const location = useLocation();
 
@@ -19,6 +19,10 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     }
 
     if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
+        return <Navigate to="/" replace />;
+    }
+
+    if (props.requiredPermission && !user?.permissions?.includes(props.requiredPermission)) {
         return <Navigate to="/" replace />;
     }
 

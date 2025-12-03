@@ -15,19 +15,29 @@ const Layout = () => {
     };
 
     const navItems = [
-        { path: '/', label: 'Dashboard', roles: ['ADMIN', 'MANAGER'] },
-        { path: '/tables', label: 'Tables', roles: ['ADMIN', 'MANAGER', 'WAITER'] },
-        { path: '/menu', label: 'Menu', roles: ['ADMIN', 'MANAGER', 'WAITER', 'CASHIER'] },
-        { path: '/orders', label: 'Orders', roles: ['ADMIN', 'MANAGER', 'WAITER', 'CASHIER'] },
-        { path: '/billing', label: 'Billing', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
-        { path: '/inventory', label: 'Inventory', roles: ['ADMIN', 'MANAGER'] },
-        { path: '/reports', label: 'Reports', roles: ['ADMIN', 'MANAGER'] },
-        { path: '/settings', label: 'Settings', roles: ['ADMIN', 'MANAGER'] },
-        { path: '/attendance', label: 'Attendance', roles: ['ADMIN', 'MANAGER', 'WAITER', 'CASHIER'] },
-        { path: '/users', label: 'Users', roles: ['ADMIN'] },
+        { path: '/', label: 'Dashboard', permission: 'dashboard', roles: ['ADMIN', 'MANAGER'] },
+        { path: '/tables', label: 'Tables', permission: 'tables', roles: ['ADMIN', 'MANAGER', 'WAITER'] },
+        { path: '/menu', label: 'Menu', permission: 'menu', roles: ['ADMIN', 'MANAGER', 'WAITER', 'CASHIER'] },
+        { path: '/orders', label: 'Orders', permission: 'orders', roles: ['ADMIN', 'MANAGER', 'WAITER', 'CASHIER'] },
+        { path: '/billing', label: 'Billing', permission: 'billing', roles: ['ADMIN', 'MANAGER', 'CASHIER'] },
+        { path: '/inventory', label: 'Inventory', permission: 'inventory', roles: ['ADMIN', 'MANAGER'] },
+        { path: '/reports', label: 'Reports', permission: 'reports', roles: ['ADMIN', 'MANAGER'] },
+        { path: '/settings', label: 'Settings', permission: 'settings', roles: ['ADMIN', 'MANAGER'] },
+        { path: '/attendance', label: 'Attendance', permission: 'attendance', roles: ['ADMIN', 'MANAGER', 'WAITER', 'CASHIER'] },
+        { path: '/users', label: 'Users', permission: 'users', roles: ['ADMIN'] },
     ];
 
-    const filteredNavItems = navItems.filter(item => item.roles.includes(user?.role));
+    const filteredNavItems = navItems.filter(item => {
+        // Check permissions first
+        if (item.permission && user?.permissions?.includes(item.permission)) {
+            return true;
+        }
+        // Fallback to roles if permissions not available or empty
+        if (!user?.permissions || user.permissions.length === 0) {
+            return item.roles.includes(user?.role);
+        }
+        return false;
+    });
 
     // Dark mode handling
     const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
