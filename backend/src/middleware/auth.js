@@ -18,10 +18,10 @@ export const authenticate = async (req, res, next) => {
         }
 
         try {
-            const decoded = jwt.verify(token, config.jwtSecret);
+            const decoded = jwt.verify(token, config.jwt.secret);
 
             const user = await prisma.user.findUnique({
-                where: { id: decoded.id },
+                where: { id: decoded.userId },
             });
 
             if (!user || !user.isActive || user.isDeleted) {
