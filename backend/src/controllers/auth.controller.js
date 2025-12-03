@@ -129,7 +129,7 @@ export const createUser = async (req, res) => {
     res.status(201).json({
         success: true,
         data: responseUser,
-        message: 'User created successfully. Email sent with credentials.',
+        message: `User created successfully. Temp Password: ${password}`,
     });
 };
 
