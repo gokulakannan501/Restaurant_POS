@@ -79,8 +79,8 @@ const Users = () => {
                 await api.put(`/auth/users/${editingUser.id}`, updateData);
                 toast.success('User updated successfully');
             } else {
-                await api.post('/auth/users', formData);
-                toast.success('User created successfully. Temporary password sent to email.');
+                const response = await api.post('/auth/users', formData);
+                toast.success(response.data.message || 'User created successfully');
             }
 
             setShowModal(false);
