@@ -23,6 +23,7 @@ const Layout = () => {
         { path: '/inventory', label: 'Inventory', roles: ['ADMIN', 'MANAGER'] },
         { path: '/reports', label: 'Reports', roles: ['ADMIN', 'MANAGER'] },
         { path: '/settings', label: 'Settings', roles: ['ADMIN', 'MANAGER'] },
+        { path: '/attendance', label: 'Attendance', roles: ['ADMIN', 'MANAGER', 'WAITER', 'CASHIER'] },
         { path: '/users', label: 'Users', roles: ['ADMIN'] },
     ];
 

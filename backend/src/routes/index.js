@@ -8,6 +8,7 @@ import inventoryRoutes from './inventory.routes.js';
 import reportsRoutes from './reports.routes.js';
 import taxRoutes from './tax.routes.js';
 import uploadRoutes from './upload.routes.js';
+import attendanceRoutes from './attendance.routes.js';
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.use('/inventory', inventoryRoutes);
 router.use('/reports', reportsRoutes);
 router.use('/taxes', taxRoutes);
 router.use('/upload', uploadRoutes);
+router.use('/attendance', attendanceRoutes);
 
 export default router;

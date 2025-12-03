@@ -20,6 +20,7 @@ import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Users from './pages/Users';
+import Attendance from './pages/Attendance';
 
 function App() {
     const { isAuthenticated, checkAuth } = useAuthStore();
@@ -102,6 +103,12 @@ function App() {
                     <Route path="/settings" element={
                         <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}>
                             <Settings />
+                        </ProtectedRoute>
+                    } />
+
+                    <Route path="/attendance" element={
+                        <ProtectedRoute>
+                            <Attendance />
                         </ProtectedRoute>
                     } />
                 </Route>
