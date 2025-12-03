@@ -4,32 +4,41 @@ import prisma from '../config/database.js';
 
 export const authenticate = async (req, res, next) => {
     try {
-        // Bypass authentication for demo purposes
-        // Fetch the first available user (preferably ADMIN) from the database
-        // This ensures we have a valid userId for foreign key constraints
-        let user = await prisma.user.findFirst({
-            where: { role: 'ADMIN' }
-        });
+        let token;
 
-        if (!user) {
-            user = await prisma.user.findFirst();
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            token = req.headers.authorization.split(' ')[1];
         }
 
-        if (!user) {
-            // If absolutely no user exists, create a default one
-            // This handles the case of an empty database
-            user = await prisma.user.create({
-                data: {
-                    name: 'Default Admin',
-                    pin: '0000',
-                    role: 'ADMIN',
-                    isActive: true
-                }
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: 'Not authorized to access this route',
             });
         }
 
-        req.user = user;
-        next();
+        try {
+            const decoded = jwt.verify(token, config.jwtSecret);
+
+            const user = await prisma.user.findUnique({
+                where: { id: decoded.id },
+            });
+
+            if (!user || !user.isActive || user.isDeleted) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'User not found or inactive',
+                });
+            }
+
+            req.user = user;
+            next();
+        } catch (error) {
+            return res.status(401).json({
+                success: false,
+                message: 'Not authorized to access this route',
+            });
+        }
     } catch (error) {
         console.error('Authentication error:', error);
         res.status(500).json({
