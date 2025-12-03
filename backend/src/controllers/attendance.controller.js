@@ -1,84 +1,60 @@
 import prisma from '../config/database.js';
 
-// Check in
-export const checkIn = async (req, res) => {
-    const userId = req.user.id;
-    const { notes } = req.body;
+// Mark attendance (Admin only)
+export const markAttendance = async (req, res) => {
+    const { userId, date, status, notes } = req.body;
+    const isAdmin = req.user.role === 'ADMIN' || req.user.role === 'MANAGER';
 
-    // Check if user already checked in today
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const existingCheckIn = await prisma.attendance.findFirst({
-        where: {
-            userId,
-            date: {
-                gte: today,
-            },
-            checkOut: null,
-        },
-    });
-
-    if (existingCheckIn) {
-        return res.status(400).json({
+    if (!isAdmin) {
+        return res.status(403).json({
             success: false,
-            message: 'Already checked in today',
+            message: 'Access denied. Only admins can mark attendance.',
         });
     }
 
-    const attendance = await prisma.attendance.create({
-        data: {
-            userId,
-            notes,
-            date: today,
-        },
-    });
+    const attendanceDate = new Date(date);
+    attendanceDate.setHours(0, 0, 0, 0);
 
-    res.status(201).json({
-        success: true,
-        data: attendance,
-        message: 'Checked in successfully',
-    });
-};
-
-// Check out
-export const checkOut = async (req, res) => {
-    const userId = req.user.id;
-    const { notes } = req.body;
-
-    // Find today's check-in record
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const attendance = await prisma.attendance.findFirst({
+    // Check if record exists
+    const existingRecord = await prisma.attendance.findFirst({
         where: {
             userId,
-            date: {
-                gte: today,
-            },
-            checkOut: null,
+            date: attendanceDate,
         },
     });
 
-    if (!attendance) {
-        return res.status(400).json({
-            success: false,
-            message: 'No active check-in found',
+    let attendance;
+
+    if (existingRecord) {
+        // Update existing
+        attendance = await prisma.attendance.update({
+            where: { id: existingRecord.id },
+            data: {
+                status,
+                notes,
+                // If marking present, ensure checkIn is set (default to 9 AM if missing)
+                checkIn: status === 'PRESENT' && !existingRecord.checkIn ? new Date(attendanceDate.setHours(9, 0, 0, 0)) : existingRecord.checkIn,
+                // If marking absent, clear checkIn/checkOut? Or keep them?
+                // Let's keep them if they exist, but status overrides.
+            },
+        });
+    } else {
+        // Create new
+        attendance = await prisma.attendance.create({
+            data: {
+                userId,
+                date: attendanceDate,
+                status,
+                notes,
+                checkIn: status === 'PRESENT' ? new Date(attendanceDate.setHours(9, 0, 0, 0)) : new Date(), // Default checkIn
+            },
         });
     }
-
-    const updatedAttendance = await prisma.attendance.update({
-        where: { id: attendance.id },
-        data: {
-            checkOut: new Date(),
-            notes: notes || attendance.notes,
-        },
-    });
 
     res.json({
         success: true,
-        data: updatedAttendance,
-        message: 'Checked out successfully',
+        data: attendance,
+        message: 'Attendance marked successfully',
     });
 };
 
@@ -147,6 +123,123 @@ export const getStatus = async (req, res) => {
         data: {
             isCheckedIn: !!attendance,
             attendance: attendance || null,
+        },
+    });
+};
+
+// Get attendance report
+export const getReport = async (req, res) => {
+    const { startDate, endDate, userId } = req.query;
+    const isAdmin = req.user.role === 'ADMIN' || req.user.role === 'MANAGER';
+
+    if (!isAdmin) {
+        return res.status(403).json({
+            success: false,
+            message: 'Access denied',
+        });
+    }
+
+    const where = {};
+
+    if (userId) {
+        where.userId = userId;
+    }
+
+    if (startDate || endDate) {
+        where.date = {};
+        if (startDate) where.date.gte = new Date(startDate);
+        if (endDate) where.date.lte = new Date(endDate);
+    }
+
+    // Get all attendance records
+    const attendance = await prisma.attendance.findMany({
+        where,
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    role: true,
+                },
+            },
+        },
+    });
+
+    // Calculate statistics per user
+    const userStats = {};
+
+    attendance.forEach(record => {
+        const userId = record.userId;
+        if (!userStats[userId]) {
+            userStats[userId] = {
+                userId,
+                userName: record.user.name,
+                userRole: record.user.role,
+                totalDays: 0,
+                presentDays: 0,
+                totalHours: 0,
+                lateCheckIns: 0,
+                earlyCheckOuts: 0,
+            };
+        }
+
+        userStats[userId].totalDays++;
+
+        if (record.status === 'PRESENT') {
+            userStats[userId].presentDays++;
+
+            if (record.checkIn && record.checkOut) {
+                const duration = new Date(record.checkOut) - new Date(record.checkIn);
+                const hours = duration / (1000 * 60 * 60);
+                userStats[userId].totalHours += hours;
+            }
+
+            // Check for late check-in (after 9:30 AM)
+            if (record.checkIn) {
+                const checkInTime = new Date(record.checkIn);
+                const checkInHour = checkInTime.getHours();
+                const checkInMinute = checkInTime.getMinutes();
+                if (checkInHour > 9 || (checkInHour === 9 && checkInMinute > 30)) {
+                    userStats[userId].lateCheckIns++;
+                }
+            }
+
+            // Check for early check-out (before 5:30 PM)
+            if (record.checkOut) {
+                const checkOutTime = new Date(record.checkOut);
+                const checkOutHour = checkOutTime.getHours();
+                const checkOutMinute = checkOutTime.getMinutes();
+                if (checkOutHour < 17 || (checkOutHour === 17 && checkOutMinute < 30)) {
+                    userStats[userId].earlyCheckOuts++;
+                }
+            }
+        }
+    });
+
+    // Calculate averages
+    Object.values(userStats).forEach(stats => {
+        if (stats.presentDays > 0) {
+            stats.averageHours = stats.totalHours / stats.presentDays;
+        }
+    });
+
+    // Convert to array and sort by name
+    const report = Object.values(userStats).sort((a, b) =>
+        a.userName.localeCompare(b.userName)
+    );
+
+    res.json({
+        success: true,
+        data: {
+            report,
+            summary: {
+                totalEmployees: report.length,
+                totalAttendanceRecords: attendance.length,
+                dateRange: {
+                    start: startDate || 'All time',
+                    end: endDate || 'Present',
+                },
+            },
         },
     });
 };

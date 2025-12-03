@@ -192,6 +192,7 @@ model Attendance {
   userId    String
   checkIn   DateTime  @default(now())
   checkOut  DateTime?
+  status    String    @default("PRESENT") // PRESENT, ABSENT, HALF_DAY, LEAVE
   date      DateTime  @default(now()) // Date of attendance (for grouping)
   notes     String?
   createdAt DateTime  @default(now())

@@ -143,30 +143,32 @@ const Tables = () => {
 
     return (
         <div className="w-full">
-            <div className="flex flex-col space-y-4 mb-6">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Tables</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Tables</h1>
 
-                {/* Filter Buttons - Horizontal scroll on mobile */}
-                <div className="flex items-center space-x-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-                    {['ALL', 'AVAILABLE', 'OCCUPIED', 'RESERVED'].map((status) => (
-                        <button
-                            key={status}
-                            onClick={() => setFilter(status)}
-                            className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${filter === status
-                                ? 'bg-primary-600 text-white shadow-md'
-                                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
-                                }`}
-                        >
-                            {status.charAt(0) + status.slice(1).toLowerCase()}
-                        </button>
-                    ))}
+                    {/* Filter Buttons */}
+                    <div className="flex items-center space-x-2 overflow-x-auto pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0">
+                        {['ALL', 'AVAILABLE', 'OCCUPIED', 'RESERVED'].map((status) => (
+                            <button
+                                key={status}
+                                onClick={() => setFilter(status)}
+                                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${filter === status
+                                    ? 'bg-primary-600 text-white shadow-md'
+                                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+                                    }`}
+                            >
+                                {status.charAt(0) + status.slice(1).toLowerCase()}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Add Table Button */}
                 {isAdminOrManager && (
                     <button
                         onClick={() => handleOpenModal()}
-                        className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30 flex items-center justify-center whitespace-nowrap"
+                        className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30 flex items-center justify-center whitespace-nowrap w-full sm:w-auto"
                     >
                         <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
