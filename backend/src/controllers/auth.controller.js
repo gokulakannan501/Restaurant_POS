@@ -1,7 +1,6 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../config/database.js';
 import { generateToken } from '../utils/jwt.js';
-import { sendWelcomeEmail } from '../services/email.service.js';
 
 export const login = async (req, res) => {
     const { email, password } = req.body;
@@ -117,14 +116,6 @@ export const createUser = async (req, res) => {
         ...user,
         permissions: user.permissions ? JSON.parse(user.permissions) : [],
     };
-
-    // Send email with temporary password
-    try {
-        await sendWelcomeEmail(email, name, password);
-    } catch (error) {
-        console.error('Failed to send welcome email:', error);
-        // Don't fail the request if email fails, but log it
-    }
 
     res.status(201).json({
         success: true,

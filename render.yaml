@@ -17,10 +17,6 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         sync: false
-      - key: RESEND_API_KEY
-        value: re_3MDK7QK4_MgUbySxQhDd1ZgzyA8ruimg1
-      - key: EMAIL_FROM
-        value: onboarding@resend.dev
 
   # Frontend Service
   - type: static
