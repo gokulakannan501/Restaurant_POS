@@ -56,7 +56,7 @@ const Attendance = () => {
             const data = {};
             records.forEach(record => {
                 data[record.userId] = {
-                    status: record.status || 'PRESENT',
+                    status: record.status,
                     notes: record.notes || '',
                     id: record.id
                 };
