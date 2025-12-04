@@ -1,14 +1,17 @@
 import prisma from '../config/database.js';
 
-// Mark attendance (Admin only)
+// Mark attendance (Users with attendance permission)
 export const markAttendance = async (req, res) => {
     const { userId, date, status, notes } = req.body;
-    const isAdmin = req.user.role === 'ADMIN' || req.user.role === 'MANAGER';
 
-    if (!isAdmin) {
+    // Check if user has attendance permission
+    const userPermissions = req.user.permissions ? JSON.parse(req.user.permissions) : [];
+    const hasAttendancePermission = userPermissions.includes('attendance') || req.user.role === 'ADMIN';
+
+    if (!hasAttendancePermission) {
         return res.status(403).json({
             success: false,
-            message: 'Access denied. Only admins can mark attendance.',
+            message: 'Access denied. You need attendance permission to mark attendance.',
         });
     }
 
@@ -79,18 +82,22 @@ export const markAttendance = async (req, res) => {
 // Get attendance records
 export const getAttendance = async (req, res) => {
     const { userId, startDate, endDate } = req.query;
-    const isAdmin = req.user.role === 'ADMIN' || req.user.role === 'MANAGER';
+
+    // Check if user has attendance permission
+    const userPermissions = req.user.permissions ? JSON.parse(req.user.permissions) : [];
+    const hasAttendancePermission = userPermissions.includes('attendance') || req.user.role === 'ADMIN';
 
     const where = {};
 
-    // Non-admins can only see their own attendance
-    if (!isAdmin) {
+    // Users with attendance permission can see all users
+    // Users without it can only see their own attendance
+    if (!hasAttendancePermission) {
         where.userId = req.user.id;
     } else if (userId) {
-        // Admin requesting specific user's attendance
+        // User with permission requesting specific user's attendance
         where.userId = userId;
     }
-    // If admin and no userId specified, return all users (no userId filter)
+    // If user has permission and no userId specified, return all users (no userId filter)
 
     if (startDate || endDate) {
         where.date = {};
