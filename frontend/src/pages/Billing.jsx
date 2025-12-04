@@ -380,6 +380,85 @@ const Billing = () => {
                         </div>
                     )}
                 </div>
+
+                {/* DEDICATED PRINT COMPONENT - Visible only when printing */}
+                {selectedBill && (
+                    <div id="printable-bill" className="hidden print:block fixed top-0 left-0 w-full h-full bg-white z-[9999] p-[10mm]">
+                        <style>{`
+                            @media print {
+                                body * { visibility: hidden; }
+                                #printable-bill, #printable-bill * { visibility: visible; }
+                                #printable-bill { position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block !important; }
+                                @page { size: auto; margin: 0mm; }
+                            }
+                        `}</style>
+                        <div style={{ width: '100%', maxWidth: '80mm', margin: '0 auto', fontFamily: 'monospace', fontSize: '12px', lineHeight: '1.4' }}>
+                            <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+                                <h1 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 5px 0' }}>The Classic Restaurant</h1>
+                                <p style={{ margin: '0', fontSize: '10px' }}>Andagalur Gate Flyover, Sakthinagar</p>
+                                <p style={{ margin: '0', fontSize: '10px' }}>Rasipuram, Tamil Nadu 637401</p>
+                                <p style={{ margin: '0', fontSize: '10px' }}>Ph: 6374038470, 8754346195</p>
+                            </div>
+
+                            <div style={{ borderBottom: '1px dashed #000', paddingBottom: '10px', marginBottom: '10px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Date:</span>
+                                    <span>{new Date(selectedBill.createdAt).toLocaleString()}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Bill No:</span>
+                                    <span>{selectedBill.billNumber}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Cashier:</span>
+                                    <span>{selectedBill.user?.name}</span>
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '15px' }}>
+                                {selectedBill.orders?.map(order => (
+                                    order.orderItems?.map((item) => (
+                                        <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                            <div style={{ flex: '1', paddingRight: '10px' }}>
+                                                <div style={{ fontWeight: 'bold' }}>{item.menuItem.name}</div>
+                                                {item.variant && <div style={{ fontSize: '10px' }}>{item.variant.name}</div>}
+                                            </div>
+                                            <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                                                <span>{item.quantity} x {item.price}</span>
+                                                <span style={{ display: 'inline-block', width: '40px', textAlign: 'right', fontWeight: 'bold' }}>{item.price * item.quantity}</span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ))}
+                            </div>
+
+                            <div style={{ borderTop: '1px dashed #000', paddingTop: '10px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Subtotal</span>
+                                    <span>₹{selectedBill.subtotal}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Tax</span>
+                                    <span>₹{selectedBill.taxAmount}</span>
+                                </div>
+                                {selectedBill.discount > 0 && (
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Discount</span>
+                                        <span>-₹{selectedBill.discount}</span>
+                                    </div>
+                                )}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 'bold', marginTop: '10px', borderTop: '1px solid #000', paddingTop: '5px' }}>
+                                    <span>Total</span>
+                                    <span>₹{selectedBill.totalAmount}</span>
+                                </div>
+                            </div>
+
+                            <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '10px' }}>
+                                <p>Thank you for dining with us!</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </>
     );
