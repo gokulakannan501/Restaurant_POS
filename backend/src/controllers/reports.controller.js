@@ -33,7 +33,7 @@ export const getDailySalesReport = async (req, res) => {
     const bills = await prisma.bill.findMany({
         where,
         include: {
-            order: {
+            orders: {
                 include: {
                     orderItems: {
                         include: {
@@ -228,7 +228,7 @@ export const exportReportToCSV = async (req, res) => {
         const bills = await prisma.bill.findMany({
             where,
             include: {
-                order: {
+                orders: {
                     select: {
                         orderNumber: true,
                         type: true,
@@ -239,11 +239,13 @@ export const exportReportToCSV = async (req, res) => {
             },
         });
 
-        csvData = 'Bill Number,Order Number,Order Type,Customer Name,Customer Phone,Subtotal,Tax,Discount,Total,Payment Mode,Date\n';
+        csvData = 'Bill Number,Order Numbers,Order Type,Customer Name,Customer Phone,Subtotal,Tax,Discount,Total,Payment Mode,Date\n';
         bills.forEach(bill => {
-            const customerName = bill.order.customerName || 'N/A';
-            const customerPhone = bill.order.customerPhone || 'N/A';
-            csvData += `${bill.billNumber},${bill.order.orderNumber},${bill.order.type},"${customerName}","${customerPhone}",${bill.subtotal},${bill.taxAmount},${bill.discount},${bill.totalAmount},${bill.paymentMode},${bill.createdAt.toISOString()}\n`;
+            const orderNumbers = bill.orders.map(o => o.orderNumber).join('; ');
+            const orderType = bill.orders[0]?.type || 'N/A';
+            const customerName = bill.orders[0]?.customerName || 'N/A';
+            const customerPhone = bill.orders[0]?.customerPhone || 'N/A';
+            csvData += `${bill.billNumber},"${orderNumbers}",${orderType},"${customerName}","${customerPhone}",${bill.subtotal},${bill.taxAmount},${bill.discount},${bill.totalAmount},${bill.paymentMode},${bill.createdAt.toISOString()}\n`;
         });
 
         const dateStr = startDate || new Date().toISOString().split('T')[0];
