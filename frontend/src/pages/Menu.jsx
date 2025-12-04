@@ -47,7 +47,7 @@ const Menu = () => {
         try {
             const [catsRes, itemsRes] = await Promise.all([
                 api.get('/menu/categories/all'),
-                api.get('/menu')
+                api.get('/menu?limit=1000')
             ]);
             setCategories(catsRes.data.data);
             setMenuItems(itemsRes.data.data);

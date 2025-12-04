@@ -18,7 +18,7 @@ export const config = {
     },
     pagination: {
         defaultLimit: 20,
-        maxLimit: 100,
+        maxLimit: 1000,
     },
     tax: {
         cgst: 2.5,
