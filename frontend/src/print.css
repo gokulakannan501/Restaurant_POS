@@ -1,0 +1,92 @@
+/* Print styles for bill receipts */
+@media print {
+
+    /* Remove all overflow restrictions */
+    body,
+    html,
+    div,
+    section,
+    main {
+        overflow: visible !important;
+        max-height: none !important;
+        height: auto !important;
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 10mm;
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+
+    /* Hide everything except receipt */
+    body * {
+        visibility: hidden !important;
+    }
+
+    #receipt-area,
+    #receipt-area * {
+        visibility: visible !important;
+        color: black !important;
+    }
+
+    /* Position receipt for printing */
+    #receipt-area {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 20mm !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: white !important;
+        overflow: visible !important;
+        height: auto !important;
+        display: block !important;
+    }
+
+    /* Remove all backgrounds and shadows */
+    * {
+        background: white !important;
+        box-shadow: none !important;
+    }
+
+    /* Hide buttons and interactive elements */
+    button,
+    .btn {
+        display: none !important;
+    }
+
+    /* Ensure flex layouts work in print */
+    #receipt-area .flex {
+        display: flex !important;
+    }
+
+    #receipt-area .justify-between {
+        justify-content: space-between !important;
+    }
+
+    #receipt-area .text-right {
+        text-align: right !important;
+    }
+
+    #receipt-area .text-center {
+        text-align: center !important;
+    }
+
+    /* Hide scrollbars */
+    ::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* Prevent page breaks inside items */
+    #receipt-area>div {
+        page-break-inside: avoid !important;
+    }
+}
