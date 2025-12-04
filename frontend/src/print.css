@@ -1,119 +1,105 @@
 /* Print styles for bill receipts */
 @media print {
 
-    /* Remove all overflow restrictions */
+    /* 1. RESET EVERYTHING */
     body,
-    html,
-    div,
-    section,
-    main {
-        overflow: visible !important;
-        max-height: none !important;
-        height: auto !important;
-    }
-
-    @page {
-        size: auto;
-        /* Let printer dialog control size (A4/A3) */
-        margin: 5mm;
-        /* Small margin to prevent printer hardware cut-off */
-    }
-
-    body {
+    html {
         margin: 0 !important;
         padding: 0 !important;
         background: white !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: visible !important;
     }
 
-    /* Hide everything except receipt */
+    /* Hide everything by default */
     body * {
         visibility: hidden !important;
+        height: 0 !important;
+        /* Collapse hidden elements */
+        overflow: hidden !important;
     }
 
+    /* 2. SHOW RECEIPT AREA */
     #receipt-area,
-    #receipt-area *,
-    #receipt-area span,
-    #receipt-area div,
-    #receipt-area p,
-    #receipt-area h1,
-    #receipt-area h2,
-    #receipt-area h3 {
+    #receipt-area * {
         visibility: visible !important;
+        height: auto !important;
+        /* Restore height */
+        overflow: visible !important;
         color: black !important;
     }
 
-    /* Position receipt for printing */
+    /* 3. POSITIONING & LAYOUT */
     #receipt-area {
-        position: relative !important;
-        /* Changed from absolute to relative */
-        left: auto !important;
-        top: auto !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
         width: 100% !important;
-        max-width: 210mm !important;
-        /* Limit width to A4 size even on A3 paper */
-        margin: 0 auto !important;
-        /* Center the bill */
-        padding: 10mm !important;
-        /* Reduced padding to prevent cut-off */
-        box-shadow: none !important;
-        border: none !important;
+        /* Use padding instead of margins to prevent cut-off */
+        padding: 15mm !important;
+        margin: 0 !important;
         background: white !important;
-        overflow: visible !important;
-        height: auto !important;
+        display: block !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 4. FIX ITEM NAMES (The most critical part) */
+    /* Target the flex container for items */
+    #receipt-area .flex {
+        display: flex !important;
+        flex-direction: row !important;
+        width: 100% !important;
+        align-items: flex-start !important;
+    }
+
+    /* Target the item name container */
+    #receipt-area .flex-1 {
+        flex: 1 1 auto !important;
+        /* Grow, shrink, auto basis */
+        width: auto !important;
         display: block !important;
     }
 
-    /* Ensure all text is visible but KEEP BLOCK STRUCTURE */
-    #receipt-area span,
-    #receipt-area .font-medium,
-    #receipt-area .text-gray-900,
-    #receipt-area .text-gray-600,
-    #receipt-area .text-gray-500 {
+    /* Target the price container */
+    #receipt-area .text-right {
+        flex: 0 0 auto !important;
+        /* Don't grow, don't shrink */
+        text-align: right !important;
+        white-space: nowrap !important;
+        /* Keep price on one line */
+        margin-left: 10px !important;
+    }
+
+    /* 5. FIX ADDRESS & TEXT */
+    #receipt-area p {
+        display: block !important;
+        /* Force new line */
+        margin-bottom: 2px !important;
+    }
+
+    #receipt-area h1 {
+        display: block !important;
+        margin-bottom: 5px !important;
+        font-size: 18px !important;
+    }
+
+    /* Ensure all text spans are visible */
+    #receipt-area span {
+        display: inline-block !important;
         visibility: visible !important;
-        color: black !important;
-        /* display: inline !important;  <-- REMOVED THIS to fix line breaks */
     }
 
-    /* Remove all backgrounds and shadows */
-    * {
-        background: white !important;
-        box-shadow: none !important;
+    /* 6. PAGE SETUP */
+    @page {
+        size: auto;
+        margin: 0mm;
+        /* We handle margins via padding in #receipt-area */
     }
 
-    /* Hide buttons and interactive elements */
+    /* Hide buttons */
     button,
     .btn {
         display: none !important;
-    }
-
-    /* Ensure flex layouts work in print */
-    #receipt-area .flex {
-        display: flex !important;
-    }
-
-    #receipt-area .flex-1 {
-        flex: 1 !important;
-    }
-
-    #receipt-area .justify-between {
-        justify-content: space-between !important;
-    }
-
-    #receipt-area .text-right {
-        text-align: right !important;
-    }
-
-    #receipt-area .text-center {
-        text-align: center !important;
-    }
-
-    /* Hide scrollbars */
-    ::-webkit-scrollbar {
-        display: none !important;
-    }
-
-    /* Prevent page breaks inside items */
-    #receipt-area>div {
-        page-break-inside: avoid !important;
     }
 }
