@@ -270,7 +270,8 @@ export const deleteUser = async (req, res) => {
         data: {
             isDeleted: true,
             isActive: false,
-            email: `deleted_${Date.now()}_${user.email}`
+            email: `deleted_${Date.now()}_${user.email}`,
+            mobile: user.mobile ? `deleted_${Date.now()}_${user.mobile}` : null
         },
     });
 
