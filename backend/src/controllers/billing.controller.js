@@ -4,81 +4,165 @@ import { config } from '../config/index.js';
 
 export const generateBill = async (req, res) => {
     try {
-        const { orderId, discount = 0 } = req.body;
+        const { orderId, tableId, discount } = req.body; // discount is optional
         const userId = req.user.id;
 
-        // Get order with items
-        const order = await prisma.order.findUnique({
-            where: { id: orderId },
-            include: {
-                orderItems: {
-                    include: {
-                        menuItem: true,
-                        variant: true,
-                    },
-                },
-                bill: true,
-            },
-        });
+        let ordersToBill = [];
+        let existingBill = null;
+        let newOrders = [];
 
-        if (!order) {
+        if (tableId) {
+            // 1. Check for existing PENDING bill for this table
+            existingBill = await prisma.bill.findFirst({
+                where: {
+                    orders: { some: { tableId } },
+                    paymentStatus: 'PENDING'
+                },
+                include: {
+                    orders: {
+                        include: {
+                            orderItems: {
+                                include: { menuItem: true, variant: true }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. Find all unbilled, active orders for this table
+            newOrders = await prisma.order.findMany({
+                where: {
+                    tableId,
+                    billId: null,
+                    status: { notIn: ['CANCELLED', 'COMPLETED'] }
+                },
+                include: {
+                    orderItems: {
+                        include: { menuItem: true, variant: true }
+                    }
+                }
+            });
+
+            if (existingBill) {
+                ordersToBill = [...existingBill.orders, ...newOrders];
+            } else {
+                ordersToBill = newOrders;
+            }
+
+        } else if (orderId) {
+            // Find specific order
+            const order = await prisma.order.findUnique({
+                where: { id: orderId },
+                include: {
+                    orderItems: {
+                        include: { menuItem: true, variant: true }
+                    },
+                    bill: true,
+                },
+            });
+
+            if (order) {
+                if (order.bill) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Bill already generated for this order',
+                    });
+                }
+                ordersToBill = [order];
+                newOrders = [order]; // All are "new" in this context
+            }
+        }
+
+        if (ordersToBill.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: 'Order not found',
+                message: 'No active orders found to generate bill',
             });
         }
 
-        if (order.bill) {
-            return res.status(400).json({
-                success: false,
-                message: 'Bill already generated for this order',
+        // Calculate subtotal from all orders (existing + new)
+        let subtotal = 0;
+        ordersToBill.forEach(order => {
+            order.orderItems.forEach(item => {
+                subtotal += item.price * item.quantity;
             });
-        }
-
-        // Calculate subtotal
-        const subtotal = order.orderItems.reduce((sum, item) => {
-            return sum + item.price * item.quantity;
-        }, 0);
+        });
 
         // Calculate tax dynamically
         const activeTaxes = await prisma.tax.findMany({ where: { isActive: true } });
         const taxRate = activeTaxes.reduce((sum, tax) => sum + tax.percentage, 0);
         const taxAmount = (subtotal * taxRate) / 100;
 
+        // Determine discount
+        // If discount is provided in request, use it.
+        // If not, and existing bill has discount, use that.
+        // Else 0.
+        let finalDiscount = 0;
+        if (discount !== undefined) {
+            finalDiscount = parseFloat(discount);
+        } else if (existingBill) {
+            finalDiscount = existingBill.discount;
+        }
+
         // Calculate total
-        const totalAmount = subtotal + taxAmount - discount;
+        const totalAmount = subtotal + taxAmount - finalDiscount;
 
-        const billNumber = generateBillNumber();
+        let bill;
 
-        const bill = await prisma.bill.create({
-            data: {
-                billNumber,
-                orderId,
-                userId,
-                subtotal,
-                taxAmount,
-                discount,
-                totalAmount,
-            },
-            include: {
-                order: {
-                    include: {
-                        orderItems: {
-                            include: {
-                                menuItem: true,
-                                variant: true,
+        if (existingBill) {
+            // Update existing bill
+            bill = await prisma.bill.update({
+                where: { id: existingBill.id },
+                data: {
+                    subtotal,
+                    taxAmount,
+                    discount: finalDiscount,
+                    totalAmount,
+                    updatedAt: new Date(),
+                    orders: {
+                        connect: newOrders.map(o => ({ id: o.id }))
+                    }
+                },
+                include: {
+                    orders: {
+                        include: {
+                            orderItems: {
+                                include: { menuItem: true, variant: true }
                             },
+                            table: true,
                         },
-                        table: true,
                     },
+                    user: { select: { name: true } },
                 },
-                user: {
-                    select: {
-                        name: true,
+            });
+        } else {
+            // Create new bill
+            const billNumber = generateBillNumber();
+            bill = await prisma.bill.create({
+                data: {
+                    billNumber,
+                    userId,
+                    subtotal,
+                    taxAmount,
+                    discount: finalDiscount,
+                    totalAmount,
+                    orders: {
+                        connect: ordersToBill.map(o => ({ id: o.id }))
+                    }
+                },
+                include: {
+                    orders: {
+                        include: {
+                            orderItems: {
+                                include: { menuItem: true, variant: true }
+                            },
+                            table: true,
+                        },
                     },
+                    user: { select: { name: true } },
                 },
-            },
-        });
+            });
+        }
 
         res.status(201).json({
             success: true,
@@ -86,14 +170,6 @@ export const generateBill = async (req, res) => {
         });
     } catch (error) {
         console.error('Generate bill error:', error);
-
-        if (error.code === 'P2002') {
-            return res.status(400).json({
-                success: false,
-                message: 'Bill already generated for this order',
-            });
-        }
-
         res.status(500).json({
             success: false,
             message: 'Failed to generate bill',
@@ -108,7 +184,7 @@ export const getBillById = async (req, res) => {
     const bill = await prisma.bill.findUnique({
         where: { id },
         include: {
-            order: {
+            orders: {
                 include: {
                     orderItems: {
                         include: {
@@ -152,7 +228,7 @@ export const processPayment = async (req, res) => {
             paidAt: new Date(),
         },
         include: {
-            order: {
+            orders: {
                 include: {
                     orderItems: {
                         include: {
@@ -166,16 +242,17 @@ export const processPayment = async (req, res) => {
         },
     });
 
-    // Update order status to completed
-    await prisma.order.update({
-        where: { id: bill.orderId },
+    // Update all orders status to completed
+    await prisma.order.updateMany({
+        where: { billId: id },
         data: { status: 'COMPLETED' },
     });
 
-    // Free up table if dine-in
-    if (bill.order.tableId) {
+    // Free up table if dine-in (check first order's table)
+    const tableId = bill.orders[0]?.tableId;
+    if (tableId) {
         await prisma.table.update({
-            where: { id: bill.order.tableId },
+            where: { id: tableId },
             data: { status: 'AVAILABLE' },
         });
     }
@@ -192,7 +269,7 @@ export const getReceipt = async (req, res) => {
     const bill = await prisma.bill.findUnique({
         where: { id },
         include: {
-            order: {
+            orders: {
                 include: {
                     orderItems: {
                         include: {
@@ -225,19 +302,27 @@ export const getReceipt = async (req, res) => {
         return acc;
     }, {});
 
+    // Aggregate items from all orders
+    const allItems = [];
+    bill.orders.forEach(order => {
+        order.orderItems.forEach(item => {
+            allItems.push({
+                name: item.variant ? `${item.menuItem.name} (${item.variant.name})` : item.menuItem.name,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.price * item.quantity,
+            });
+        });
+    });
+
     // Format receipt data
     const receipt = {
         billNumber: bill.billNumber,
-        orderNumber: bill.order.orderNumber,
+        orderNumber: bill.orders.map(o => o.orderNumber).join(', '),
         date: bill.createdAt,
-        table: bill.order.table?.number,
+        table: bill.orders[0]?.table?.number,
         cashier: bill.user.name,
-        items: bill.order.orderItems.map((item) => ({
-            name: item.variant ? `${item.menuItem.name} (${item.variant.name})` : item.menuItem.name,
-            quantity: item.quantity,
-            price: item.price,
-            total: item.price * item.quantity,
-        })),
+        items: allItems,
         subtotal: bill.subtotal,
         tax: {
             ...taxBreakdown,
@@ -277,7 +362,7 @@ export const getAllBills = async (req, res) => {
     const bills = await prisma.bill.findMany({
         where,
         include: {
-            order: {
+            orders: {
                 include: {
                     orderItems: {
                         include: {

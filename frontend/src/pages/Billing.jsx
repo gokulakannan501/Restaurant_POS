@@ -26,10 +26,12 @@ const Billing = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // If redirected from Orders with an orderId, generate bill immediately
+        // If redirected from Orders with an orderId or tableId, generate bill immediately
         if (location.state?.orderId) {
-            generateBill(location.state.orderId);
-            // Clear state so we don't regenerate on refresh
+            generateBill({ orderId: location.state.orderId });
+            window.history.replaceState({}, document.title);
+        } else if (location.state?.tableId) {
+            generateBill({ tableId: location.state.tableId });
             window.history.replaceState({}, document.title);
         } else {
             fetchBills();
@@ -63,9 +65,9 @@ const Billing = () => {
         }
     };
 
-    const generateBill = async (orderId) => {
+    const generateBill = async (data) => {
         try {
-            const response = await api.post('/billing/generate', { orderId });
+            const response = await api.post('/billing/generate', data);
             toast.success('Bill generated successfully');
             fetchBills();
             setSelectedBill(response.data.data);
@@ -163,12 +165,12 @@ const Billing = () => {
                                     <span className="font-bold text-primary-600 dark:text-primary-400">₹{bill.totalAmount}</span>
                                 </div>
                                 <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
-                                    <span>{bill.order.type}</span>
+                                    <span>{bill.orders?.[0]?.type || 'N/A'}</span>
                                     <span>{new Date(bill.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
-                                {bill.order.table && (
+                                {bill.orders?.[0]?.table && (
                                     <div className="mt-2 text-xs font-medium bg-gray-100 dark:bg-gray-700 inline-block px-2 py-1 rounded text-gray-600 dark:text-gray-300">
-                                        Table {bill.order.table.number}
+                                        Table {bill.orders[0].table.number}
                                     </div>
                                 )}
                             </button>
@@ -230,17 +232,19 @@ const Billing = () => {
                                 </div>
 
                                 <div className="space-y-3 mb-6">
-                                    {selectedBill.order?.orderItems?.map((item) => (
-                                        <div key={item.id} className="flex justify-between text-sm">
-                                            <div className="flex-1">
-                                                <span className="font-medium text-gray-900">{item.menuItem.name}</span>
-                                                {item.variant && <span className="text-gray-500 text-xs block">{item.variant.name}</span>}
+                                    {selectedBill.orders?.map(order => (
+                                        order.orderItems?.map((item) => (
+                                            <div key={item.id} className="flex justify-between text-sm">
+                                                <div className="flex-1">
+                                                    <span className="font-medium text-gray-900">{item.menuItem.name}</span>
+                                                    {item.variant && <span className="text-gray-500 text-xs block">{item.variant.name}</span>}
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-gray-500 mr-4">{item.quantity} x {item.price}</span>
+                                                    <span className="font-medium text-gray-900">{item.price * item.quantity}</span>
+                                                </div>
                                             </div>
-                                            <div className="text-right">
-                                                <span className="text-gray-500 mr-4">{item.quantity} x {item.price}</span>
-                                                <span className="font-medium text-gray-900">{item.price * item.quantity}</span>
-                                            </div>
-                                        </div>
+                                        ))
                                     ))}
                                 </div>
 

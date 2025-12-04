@@ -203,9 +203,15 @@ const Orders = () => {
                                         Mark Served
                                     </button>
                                 )}
-                                {order.status === 'SERVED' && !order.bill && (
+                                {order.status === 'SERVED' && !order.billId && (
                                     <button
-                                        onClick={() => navigate('/billing', { state: { orderId: order.id } })}
+                                        onClick={() => {
+                                            if (order.type === 'DINE_IN' && order.tableId) {
+                                                navigate('/billing', { state: { tableId: order.tableId } });
+                                            } else {
+                                                navigate('/billing', { state: { orderId: order.id } });
+                                            }
+                                        }}
                                         className="bg-purple-600 text-white hover:bg-purple-700 py-1 text-sm col-span-2 rounded transition-colors shadow-sm"
                                     >
                                         Generate Bill

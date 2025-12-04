@@ -111,12 +111,14 @@ model Order {
   table      Table?      @relation(fields: [tableId], references: [id])
   user       User        @relation(fields: [userId], references: [id])
   orderItems OrderItem[]
-  bill       Bill?
+  billId     String?
+  bill       Bill?       @relation(fields: [billId], references: [id])
 
   @@index([orderNumber])
   @@index([status])
   @@index([tableId])
   @@index([userId])
+  @@index([billId])
 }
 
 model OrderItem {
@@ -141,7 +143,7 @@ model OrderItem {
 model Bill {
   id            String   @id @default(uuid())
   billNumber    String   @unique
-  orderId       String   @unique
+  // Removed orderId (1:1)
   userId        String
   subtotal      Float
   taxAmount     Float
@@ -153,11 +155,10 @@ model Bill {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  order Order @relation(fields: [orderId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
+  orders Order[] // 1:N relationship
+  user   User    @relation(fields: [userId], references: [id])
 
   @@index([billNumber])
-  @@index([orderId])
   @@index([paymentStatus])
 }
 

@@ -216,7 +216,9 @@ const Tables = () => {
                                 <div className="mt-4 pt-4 border-t border-red-200 dark:border-red-800">
                                     <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-1">Active Order</p>
                                     <p className="text-sm font-bold text-gray-900 dark:text-white">
-                                        ₹{table.orders[0].orderItems?.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()}
+                                        ₹{table.orders.reduce((total, order) => {
+                                            return total + (order.orderItems?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0);
+                                        }, 0).toLocaleString()}
                                     </p>
                                 </div>
                             )}
