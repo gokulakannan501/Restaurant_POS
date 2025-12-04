@@ -11,6 +11,7 @@ const Profile = () => {
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
+        mobile: user?.mobile || '',
     });
 
     const [passwordData, setPasswordData] = useState({
@@ -97,6 +98,19 @@ const Profile = () => {
                                 />
                             </div>
 
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Mobile Number
+                                </label>
+                                <input
+                                    type="tel"
+                                    value={formData.mobile}
+                                    onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                                    placeholder="+1234567890"
+                                />
+                            </div>
+
                             <div className="flex space-x-3">
                                 <button
                                     type="submit"
@@ -108,7 +122,7 @@ const Profile = () => {
                                     type="button"
                                     onClick={() => {
                                         setIsEditing(false);
-                                        setFormData({ name: user.name, email: user.email });
+                                        setFormData({ name: user.name, email: user.email, mobile: user.mobile || '' });
                                     }}
                                     className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-2 rounded-lg font-medium transition-colors"
                                 >
@@ -130,6 +144,13 @@ const Profile = () => {
                                     Email
                                 </label>
                                 <p className="text-gray-900 dark:text-white font-medium">{user?.email}</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                    Mobile Number
+                                </label>
+                                <p className="text-gray-900 dark:text-white font-medium">{user?.mobile || 'Not set'}</p>
                             </div>
 
                             <div>
