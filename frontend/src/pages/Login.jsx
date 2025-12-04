@@ -56,16 +56,16 @@ const Login = () => {
                     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Email Address
+                                Email or Mobile Number
                             </label>
                             <input
                                 id="email"
-                                type="email"
+                                type="text"
                                 value={email}
                                 onChange={handleEmailChange}
                                 required
                                 className="w-full px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base"
-                                placeholder="you@example.com"
+                                placeholder="you@example.com or +1234567890"
                             />
                         </div>
 

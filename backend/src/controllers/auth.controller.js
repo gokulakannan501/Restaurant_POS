@@ -5,8 +5,13 @@ import { generateToken } from '../utils/jwt.js';
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({
-        where: { email },
+    const user = await prisma.user.findFirst({
+        where: {
+            OR: [
+                { email: email },
+                { mobile: email } // Allow login with mobile number (passed in email field)
+            ]
+        },
     });
 
     if (!user || !user.isActive || user.isDeleted) {
@@ -34,6 +39,7 @@ export const login = async (req, res) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                mobile: user.mobile,
                 role: user.role,
                 permissions: user.permissions ? JSON.parse(user.permissions) : [],
                 isFirstLogin: user.isFirstLogin,
@@ -57,6 +63,7 @@ export const getCurrentUser = async (req, res) => {
             id: true,
             name: true,
             email: true,
+            mobile: true,
             role: true,
             permissions: true,
             isActive: true,
@@ -75,16 +82,21 @@ export const getCurrentUser = async (req, res) => {
 };
 
 export const createUser = async (req, res) => {
-    const { name, email, password, role, permissions } = req.body;
+    const { name, email, mobile, password, role, permissions } = req.body;
 
-    const existingUser = await prisma.user.findUnique({
-        where: { email },
+    const existingUser = await prisma.user.findFirst({
+        where: {
+            OR: [
+                { email },
+                { mobile: mobile || undefined }
+            ]
+        },
     });
 
     if (existingUser) {
         return res.status(400).json({
             success: false,
-            message: 'User with this email already exists',
+            message: 'User with this email or mobile already exists',
         });
     }
 
@@ -94,6 +106,7 @@ export const createUser = async (req, res) => {
         data: {
             name,
             email,
+            mobile,
             password: hashedPassword,
             role,
             permissions: permissions ? JSON.stringify(permissions) : null,
@@ -103,6 +116,7 @@ export const createUser = async (req, res) => {
             id: true,
             name: true,
             email: true,
+            mobile: true,
             role: true,
             permissions: true,
             isActive: true,
@@ -126,11 +140,12 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     const { id } = req.params;
-    const { name, email, password, role, permissions, isActive } = req.body;
+    const { name, email, mobile, password, role, permissions, isActive } = req.body;
 
     const data = {};
     if (name) data.name = name;
     if (email) data.email = email;
+    if (mobile) data.mobile = mobile;
     if (password) {
         data.password = await bcrypt.hash(password, 10);
         data.isFirstLogin = false; // Password has been changed
@@ -146,6 +161,7 @@ export const updateUser = async (req, res) => {
             id: true,
             name: true,
             email: true,
+            mobile: true,
             role: true,
             permissions: true,
             isActive: true,
@@ -172,6 +188,7 @@ export const getAllUsers = async (req, res) => {
             id: true,
             name: true,
             email: true,
+            mobile: true,
             role: true,
             permissions: true,
             isActive: true,
