@@ -93,7 +93,123 @@ const Billing = () => {
     };
 
     const handlePrint = () => {
-        window.print();
+        if (!selectedBill) return;
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            toast.error('Please allow popups to print');
+            return;
+        }
+
+        const billDate = new Date(selectedBill.createdAt).toLocaleString();
+        const itemsHtml = selectedBill.orders?.map(order =>
+            order.orderItems?.map(item => `
+                <div class="item">
+                    <div class="item-name">
+                        <div class="name">${item.menuItem.name}</div>
+                        ${item.variant ? `<div class="variant">${item.variant.name}</div>` : ''}
+                    </div>
+                    <div class="item-price">
+                        <span>${item.quantity} x ${item.price}</span>
+                        <span class="total">${item.price * item.quantity}</span>
+                    </div>
+                </div>
+            `).join('')
+        ).join('') || '';
+
+        const discountHtml = selectedBill.discount > 0 ? `
+            <div class="row discount">
+                <span>Discount</span>
+                <span>-₹${selectedBill.discount}</span>
+            </div>
+        ` : '';
+
+        const paymentHtml = selectedBill.paymentStatus === 'COMPLETED' ? `
+            <div class="payment-status">
+                <span class="badge">PAID via ${selectedBill.paymentMode}</span>
+                <p>Thank you for dining with us!</p>
+            </div>
+        ` : '';
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Bill #${selectedBill.billNumber}</title>
+                <style>
+                    body {
+                        font-family: 'Courier New', Courier, monospace;
+                        font-size: 12px;
+                        line-height: 1.4;
+                        margin: 0;
+                        padding: 15mm;
+                        width: 100%;
+                        max-width: 80mm; /* Force receipt width */
+                        margin: 0 auto;  /* Center on page */
+                    }
+                    .header { text-align: center; margin-bottom: 15px; }
+                    .header h1 { font-size: 18px; font-weight: bold; margin: 0 0 5px 0; }
+                    .header p { margin: 0; font-size: 10px; }
+                    
+                    .meta { border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+                    .row { display: flex; justify-content: space-between; }
+                    
+                    .items { margin-bottom: 15px; }
+                    .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+                    .item-name { flex: 1; padding-right: 10px; }
+                    .item-name .name { font-weight: bold; }
+                    .item-name .variant { font-size: 10px; }
+                    .item-price { text-align: right; white-space: nowrap; }
+                    .item-price .total { display: inline-block; width: 40px; font-weight: bold; }
+                    
+                    .totals { border-top: 1px dashed #000; padding-top: 10px; }
+                    .grand-total { font-size: 16px; font-weight: bold; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px; }
+                    
+                    .payment-status { text-align: center; margin-top: 20px; font-size: 10px; }
+                    .badge { display: inline-block; padding: 3px 8px; border: 1px solid #000; border-radius: 10px; font-weight: bold; }
+                    
+                    @media print {
+                        @page { margin: 0; size: auto; }
+                        body { padding: 10mm; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>The Classic Restaurant</h1>
+                    <p>Andagalur Gate Flyover, Sakthinagar</p>
+                    <p>Rasipuram, Tamil Nadu 637401</p>
+                    <p>Ph: 6374038470, 8754346195</p>
+                </div>
+                
+                <div class="meta">
+                    <div class="row"><span>Date:</span><span>${billDate}</span></div>
+                    <div class="row"><span>Bill No:</span><span>${selectedBill.billNumber}</span></div>
+                    <div class="row"><span>Cashier:</span><span>${selectedBill.user?.name || 'Staff'}</span></div>
+                </div>
+                
+                <div class="items">
+                    ${itemsHtml}
+                </div>
+                
+                <div class="totals">
+                    <div class="row"><span>Subtotal</span><span>₹${selectedBill.subtotal}</span></div>
+                    <div class="row"><span>Tax</span><span>₹${selectedBill.taxAmount}</span></div>
+                    ${discountHtml}
+                    <div class="row grand-total"><span>Total</span><span>₹${selectedBill.totalAmount}</span></div>
+                </div>
+                
+                ${paymentHtml}
+                
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                </script>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
     };
 
     return (
@@ -380,85 +496,6 @@ const Billing = () => {
                         </div>
                     )}
                 </div>
-
-                {/* DEDICATED PRINT COMPONENT - Visible only when printing */}
-                {selectedBill && (
-                    <div id="printable-bill" className="hidden print:block fixed top-0 left-0 w-full h-full bg-white z-[9999] p-[10mm]">
-                        <style>{`
-                            @media print {
-                                body * { visibility: hidden; }
-                                #printable-bill, #printable-bill * { visibility: visible; }
-                                #printable-bill { position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block !important; }
-                                @page { size: auto; margin: 0mm; }
-                            }
-                        `}</style>
-                        <div style={{ width: '100%', maxWidth: '80mm', margin: '0 auto', fontFamily: 'monospace', fontSize: '12px', lineHeight: '1.4' }}>
-                            <div style={{ textAlign: 'center', marginBottom: '15px' }}>
-                                <h1 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 5px 0' }}>The Classic Restaurant</h1>
-                                <p style={{ margin: '0', fontSize: '10px' }}>Andagalur Gate Flyover, Sakthinagar</p>
-                                <p style={{ margin: '0', fontSize: '10px' }}>Rasipuram, Tamil Nadu 637401</p>
-                                <p style={{ margin: '0', fontSize: '10px' }}>Ph: 6374038470, 8754346195</p>
-                            </div>
-
-                            <div style={{ borderBottom: '1px dashed #000', paddingBottom: '10px', marginBottom: '10px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>Date:</span>
-                                    <span>{new Date(selectedBill.createdAt).toLocaleString()}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>Bill No:</span>
-                                    <span>{selectedBill.billNumber}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>Cashier:</span>
-                                    <span>{selectedBill.user?.name}</span>
-                                </div>
-                            </div>
-
-                            <div style={{ marginBottom: '15px' }}>
-                                {selectedBill.orders?.map(order => (
-                                    order.orderItems?.map((item) => (
-                                        <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                                            <div style={{ flex: '1', paddingRight: '10px' }}>
-                                                <div style={{ fontWeight: 'bold' }}>{item.menuItem.name}</div>
-                                                {item.variant && <div style={{ fontSize: '10px' }}>{item.variant.name}</div>}
-                                            </div>
-                                            <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                                                <span>{item.quantity} x {item.price}</span>
-                                                <span style={{ display: 'inline-block', width: '40px', textAlign: 'right', fontWeight: 'bold' }}>{item.price * item.quantity}</span>
-                                            </div>
-                                        </div>
-                                    ))
-                                ))}
-                            </div>
-
-                            <div style={{ borderTop: '1px dashed #000', paddingTop: '10px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>Subtotal</span>
-                                    <span>₹{selectedBill.subtotal}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>Tax</span>
-                                    <span>₹{selectedBill.taxAmount}</span>
-                                </div>
-                                {selectedBill.discount > 0 && (
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span>Discount</span>
-                                        <span>-₹{selectedBill.discount}</span>
-                                    </div>
-                                )}
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 'bold', marginTop: '10px', borderTop: '1px solid #000', paddingTop: '5px' }}>
-                                    <span>Total</span>
-                                    <span>₹{selectedBill.totalAmount}</span>
-                                </div>
-                            </div>
-
-                            <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '10px' }}>
-                                <p>Thank you for dining with us!</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         </>
     );
