@@ -25,6 +25,13 @@ const Attendance = () => {
         if (isAdmin) {
             fetchUsers();
             fetchDailyAttendance(selectedDate);
+
+            // Auto-refresh attendance data every 10 seconds
+            const interval = setInterval(() => {
+                fetchDailyAttendance(selectedDate);
+            }, 10000); // 10 seconds
+
+            return () => clearInterval(interval);
         } else {
             fetchMyAttendance();
         }
@@ -157,6 +164,15 @@ const Attendance = () => {
                             onChange={(e) => setSelectedDate(e.target.value)}
                             className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         />
+                        <button
+                            onClick={() => fetchDailyAttendance(selectedDate)}
+                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-300"
+                            title="Refresh Data"
+                        >
+                            <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
                     </div>
 
                     <div className="overflow-x-auto">
