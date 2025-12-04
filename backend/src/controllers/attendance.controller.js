@@ -12,14 +12,21 @@ export const markAttendance = async (req, res) => {
         });
     }
 
-    const attendanceDate = new Date(date);
-    attendanceDate.setHours(0, 0, 0, 0);
+    // Create date range for the day
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
 
-    // Check if record exists
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Check if record exists for this user on this date
     const existingRecord = await prisma.attendance.findFirst({
         where: {
             userId,
-            date: attendanceDate,
+            date: {
+                gte: startOfDay,
+                lte: endOfDay,
+            },
         },
     });
 
@@ -27,26 +34,37 @@ export const markAttendance = async (req, res) => {
 
     if (existingRecord) {
         // Update existing
+        const updateData = {
+            status,
+            notes: notes || existingRecord.notes,
+        };
+
+        // If marking present and no checkIn exists, set it
+        if (status === 'PRESENT' && !existingRecord.checkIn) {
+            const checkInTime = new Date(date);
+            checkInTime.setHours(9, 0, 0, 0);
+            updateData.checkIn = checkInTime;
+        }
+
         attendance = await prisma.attendance.update({
             where: { id: existingRecord.id },
-            data: {
-                status,
-                notes,
-                // If marking present, ensure checkIn is set (default to 9 AM if missing)
-                checkIn: status === 'PRESENT' && !existingRecord.checkIn ? new Date(attendanceDate.setHours(9, 0, 0, 0)) : existingRecord.checkIn,
-                // If marking absent, clear checkIn/checkOut? Or keep them?
-                // Let's keep them if they exist, but status overrides.
-            },
+            data: updateData,
         });
     } else {
         // Create new
+        const attendanceDate = new Date(date);
+        attendanceDate.setHours(0, 0, 0, 0);
+
+        const checkInTime = new Date(date);
+        checkInTime.setHours(9, 0, 0, 0);
+
         attendance = await prisma.attendance.create({
             data: {
                 userId,
                 date: attendanceDate,
                 status,
-                notes,
-                checkIn: status === 'PRESENT' ? new Date(attendanceDate.setHours(9, 0, 0, 0)) : new Date(), // Default checkIn
+                notes: notes || '',
+                checkIn: status === 'PRESENT' ? checkInTime : new Date(),
             },
         });
     }
