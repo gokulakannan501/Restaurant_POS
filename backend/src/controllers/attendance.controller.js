@@ -84,11 +84,13 @@ export const getAttendance = async (req, res) => {
     const where = {};
 
     // Non-admins can only see their own attendance
-    if (!isAdmin || !userId) {
+    if (!isAdmin) {
         where.userId = req.user.id;
     } else if (userId) {
+        // Admin requesting specific user's attendance
         where.userId = userId;
     }
+    // If admin and no userId specified, return all users (no userId filter)
 
     if (startDate || endDate) {
         where.date = {};
