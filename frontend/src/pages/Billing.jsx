@@ -111,33 +111,30 @@ const Billing = () => {
                     
                     #receipt-area {
                         position: absolute;
-                        left: 0;
+                        left: 50%;
                         top: 0;
+                        transform: translateX(-50%);
                         width: 100%;
-                        max-width: 80mm; /* Standard thermal printer width */
+                        max-width: 210mm; /* A4 width */
                         margin: 0;
-                        padding: 10mm;
+                        padding: 20mm;
                         box-shadow: none !important;
                         border: none !important;
                     }
                     
                     /* Ensure content fits on page */
                     @page {
-                        size: auto;
-                        margin: 10mm;
+                        size: A4 portrait;
+                        margin: 15mm;
                     }
                     
-                    /* Make text smaller for better fit */
-                    #receipt-area {
-                        font-size: 12px;
-                    }
-                    
-                    #receipt-area h1 {
-                        font-size: 18px;
-                    }
-                    
-                    /* Prevent page breaks inside items */
+                    /* Prevent page breaks inside important sections */
                     #receipt-area > div {
+                        page-break-inside: avoid;
+                    }
+                    
+                    /* Ensure items list doesn't break */
+                    #receipt-area .space-y-3 {
                         page-break-inside: avoid;
                     }
                     
@@ -145,6 +142,31 @@ const Billing = () => {
                     * {
                         background: white !important;
                         box-shadow: none !important;
+                        color: black !important;
+                    }
+                    
+                    /* Make sure all content is visible */
+                    #receipt-area * {
+                        overflow: visible !important;
+                        max-height: none !important;
+                    }
+                }
+                
+                /* For thermal printers (58mm or 80mm) */
+                @media print and (max-width: 100mm) {
+                    #receipt-area {
+                        max-width: 80mm;
+                        padding: 5mm;
+                        font-size: 10px;
+                    }
+                    
+                    #receipt-area h1 {
+                        font-size: 14px;
+                    }
+                    
+                    @page {
+                        size: 80mm auto;
+                        margin: 5mm;
                     }
                 }
             `}</style>
