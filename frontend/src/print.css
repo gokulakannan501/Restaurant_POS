@@ -29,7 +29,13 @@
     }
 
     #receipt-area,
-    #receipt-area * {
+    #receipt-area *,
+    #receipt-area span,
+    #receipt-area div,
+    #receipt-area p,
+    #receipt-area h1,
+    #receipt-area h2,
+    #receipt-area h3 {
         visibility: visible !important;
         color: black !important;
     }
@@ -51,6 +57,17 @@
         display: block !important;
     }
 
+    /* Ensure all text is visible */
+    #receipt-area span,
+    #receipt-area .font-medium,
+    #receipt-area .text-gray-900,
+    #receipt-area .text-gray-600,
+    #receipt-area .text-gray-500 {
+        visibility: visible !important;
+        color: black !important;
+        display: inline !important;
+    }
+
     /* Remove all backgrounds and shadows */
     * {
         background: white !important;
@@ -66,6 +83,10 @@
     /* Ensure flex layouts work in print */
     #receipt-area .flex {
         display: flex !important;
+    }
+
+    #receipt-area .flex-1 {
+        flex: 1 !important;
     }
 
     #receipt-area .justify-between {
