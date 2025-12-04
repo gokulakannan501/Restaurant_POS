@@ -353,8 +353,9 @@ export const getDashboardStats = async (req, res) => {
                 totalAmount: true,
             },
         }),
-        prisma.order.count({
+        prisma.bill.count({
             where: {
+                paymentStatus: 'COMPLETED',
                 createdAt: {
                     gte: startOfDay,
                     lte: endOfDay,
