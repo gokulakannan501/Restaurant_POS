@@ -13,8 +13,10 @@
     }
 
     @page {
-        size: A4 portrait;
-        margin: 10mm;
+        size: auto;
+        /* Let printer dialog control size (A4/A3) */
+        margin: 5mm;
+        /* Small margin to prevent printer hardware cut-off */
     }
 
     body {
@@ -42,13 +44,17 @@
 
     /* Position receipt for printing */
     #receipt-area {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
+        position: relative !important;
+        /* Changed from absolute to relative */
+        left: auto !important;
+        top: auto !important;
         width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 20mm !important;
+        max-width: 210mm !important;
+        /* Limit width to A4 size even on A3 paper */
+        margin: 0 auto !important;
+        /* Center the bill */
+        padding: 10mm !important;
+        /* Reduced padding to prevent cut-off */
         box-shadow: none !important;
         border: none !important;
         background: white !important;
@@ -57,7 +63,7 @@
         display: block !important;
     }
 
-    /* Ensure all text is visible */
+    /* Ensure all text is visible but KEEP BLOCK STRUCTURE */
     #receipt-area span,
     #receipt-area .font-medium,
     #receipt-area .text-gray-900,
@@ -65,7 +71,7 @@
     #receipt-area .text-gray-500 {
         visibility: visible !important;
         color: black !important;
-        display: inline !important;
+        /* display: inline !important;  <-- REMOVED THIS to fix line breaks */
     }
 
     /* Remove all backgrounds and shadows */

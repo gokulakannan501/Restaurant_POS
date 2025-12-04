@@ -316,3 +316,60 @@ export const updateOwnProfile = async (req, res) => {
     });
 };
 
+// Cleanup deleted users (Admin only)
+export const cleanupDeletedUsers = async (req, res) => {
+    try {
+        // Find all deleted users
+        const deletedUsers = await prisma.user.findMany({
+            where: {
+                isDeleted: true
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                mobile: true
+            }
+        });
+
+        if (deletedUsers.length === 0) {
+            return res.json({
+                success: true,
+                message: 'No deleted users found. Database is clean!',
+                data: { count: 0, users: [] }
+            });
+        }
+
+        // Update each deleted user
+        const timestamp = Date.now();
+        const updatePromises = deletedUsers.map((user, index) => {
+            const uniqueTimestamp = timestamp + index;
+            return prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    email: `deleted_${uniqueTimestamp}_${user.email}`,
+                    mobile: user.mobile ? `deleted_${uniqueTimestamp}_${user.mobile}` : null
+                }
+            });
+        });
+
+        await Promise.all(updatePromises);
+
+        res.json({
+            success: true,
+            message: `Successfully cleaned up ${deletedUsers.length} deleted user(s)`,
+            data: {
+                count: deletedUsers.length,
+                users: deletedUsers.map(u => ({ name: u.name, email: u.email, mobile: u.mobile }))
+            }
+        });
+    } catch (error) {
+        console.error('Error cleaning up deleted users:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to cleanup deleted users',
+            error: error.message
+        });
+    }
+};
+
