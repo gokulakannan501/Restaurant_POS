@@ -23,7 +23,7 @@ const Profile = () => {
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
         try {
-            const response = await api.put(`/auth/users/${user.id}`, formData);
+            const response = await api.put('/auth/profile', formData);
             updateUser(response.data.data);
             toast.success('Profile updated successfully');
             setIsEditing(false);

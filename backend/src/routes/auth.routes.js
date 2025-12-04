@@ -5,6 +5,7 @@ import {
     getCurrentUser,
     createUser,
     updateUser,
+    updateOwnProfile,
     getAllUsers,
     changePassword,
     deleteUser,
@@ -19,6 +20,7 @@ router.post('/login', validate(loginSchema), login);
 router.post('/logout', authenticate, logout);
 router.get('/me', authenticate, getCurrentUser);
 router.post('/change-password', authenticate, validate(changePasswordSchema), changePassword);
+router.put('/profile', authenticate, updateOwnProfile); // Users can update their own profile
 router.get('/users', authenticate, authorize('ADMIN', 'MANAGER'), getAllUsers);
 router.post('/users', authenticate, authorize('ADMIN'), validate(createUserSchema), createUser);
 router.put('/users/:id', authenticate, authorize('ADMIN'), validate(updateUserSchema), updateUser);

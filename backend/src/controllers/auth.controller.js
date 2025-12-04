@@ -279,3 +279,39 @@ export const deleteUser = async (req, res) => {
         message: 'User deleted successfully',
     });
 };
+
+// Update own profile (for regular users)
+export const updateOwnProfile = async (req, res) => {
+    const userId = req.user.id;
+    const { name, email, mobile } = req.body;
+
+    const data = {};
+    if (name) data.name = name;
+    if (email) data.email = email;
+    if (mobile !== undefined) data.mobile = mobile; // Allow setting to empty string
+
+    const user = await prisma.user.update({
+        where: { id: userId },
+        data,
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            mobile: true,
+            role: true,
+            permissions: true,
+            isActive: true,
+            isFirstLogin: true,
+            createdAt: true,
+        },
+    });
+
+    res.json({
+        success: true,
+        data: {
+            ...user,
+            permissions: user.permissions ? JSON.parse(user.permissions) : [],
+        },
+    });
+};
+
