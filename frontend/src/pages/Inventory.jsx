@@ -166,7 +166,7 @@ const Inventory = () => {
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead className="bg-gray-50 dark:bg-gray-700/50">
@@ -240,10 +240,10 @@ const Inventory = () => {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[60] overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)} />
 
-                        <div className="relative transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-200 dark:border-gray-700">
+                        <div className="relative rounded-xl bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-200 dark:border-gray-700">
                             <div className="p-6">
                                 <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">{editingItem ? 'Edit Item' : 'Add New Item'}</h2>
                                 <form onSubmit={handleSubmit} className="space-y-4">
