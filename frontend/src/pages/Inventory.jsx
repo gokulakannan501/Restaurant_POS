@@ -128,112 +128,114 @@ const Inventory = () => {
     }
 
     return (
-        <div className="bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg p-6 transition-all duration-300">
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Inventory Management</h1>
-                <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            id="lowStock"
-                            checked={showLowStock}
-                            onChange={(e) => setShowLowStock(e.target.checked)}
-                            className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 bg-white dark:bg-gray-700"
-                        />
-                        <label htmlFor="lowStock" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Show Low Stock Only
-                        </label>
+        <>
+            <div className="bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg p-6 transition-all duration-300">
+                <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Inventory Management</h1>
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                id="lowStock"
+                                checked={showLowStock}
+                                onChange={(e) => setShowLowStock(e.target.checked)}
+                                className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 bg-white dark:bg-gray-700"
+                            />
+                            <label htmlFor="lowStock" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Show Low Stock Only
+                            </label>
+                        </div>
+                        <button
+                            onClick={handleExportCSV}
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-green-600/30 flex items-center gap-2"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export CSV
+                        </button>
+                        <button
+                            onClick={() => {
+                                setEditingItem(null);
+                                setFormData({ name: '', unit: 'kg', currentStock: 0, minStock: 0, maxStock: 0, lastRestocked: null });
+                                setIsModalOpen(true);
+                            }}
+                            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30"
+                        >
+                            Add New Item
+                        </button>
                     </div>
-                    <button
-                        onClick={handleExportCSV}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-green-600/30 flex items-center gap-2"
-                    >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Export CSV
-                    </button>
-                    <button
-                        onClick={() => {
-                            setEditingItem(null);
-                            setFormData({ name: '', unit: 'kg', currentStock: 0, minStock: 0, maxStock: 0, lastRestocked: null });
-                            setIsModalOpen(true);
-                        }}
-                        className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg shadow-primary-600/30"
-                    >
-                        Add New Item
-                    </button>
                 </div>
-            </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead className="bg-gray-50 dark:bg-gray-700/50">
-                            <tr>
-                                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item Name</th>
-                                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Current Stock</th>
-                                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Restocked</th>
-                                <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            {items.map((item) => (
-                                <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</div>
-                                        <div className="text-sm text-gray-500 dark:text-gray-400">Unit: {item.unit}</div>
-                                    </td>
-                                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm text-gray-900 dark:text-white font-medium">{item.currentStock}</span>
-                                            <button
-                                                onClick={() => setRestockModal({
-                                                    isOpen: true,
-                                                    itemId: item.id,
-                                                    itemName: item.name,
-                                                    quantity: ''
-                                                })}
-                                                className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 text-xs font-medium"
-                                            >
-                                                + Add
-                                            </button>
-                                        </div>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400">Min: {item.minStock} | Max: {item.maxStock || 'N/A'}</div>
-                                    </td>
-                                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                                        {item.currentStock <= item.minStock ? (
-                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                                                Low Stock
-                                            </span>
-                                        ) : (
-                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                In Stock
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                        {item.lastRestocked ? new Date(item.lastRestocked).toLocaleDateString() : 'Never'}
-                                    </td>
-                                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button
-                                            onClick={() => handleEdit(item)}
-                                            className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-4"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(item.id)}
-                                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead className="bg-gray-50 dark:bg-gray-700/50">
+                                <tr>
+                                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item Name</th>
+                                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Current Stock</th>
+                                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Restocked</th>
+                                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                {items.map((item) => (
+                                    <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</div>
+                                            <div className="text-sm text-gray-500 dark:text-gray-400">Unit: {item.unit}</div>
+                                        </td>
+                                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-sm text-gray-900 dark:text-white font-medium">{item.currentStock}</span>
+                                                <button
+                                                    onClick={() => setRestockModal({
+                                                        isOpen: true,
+                                                        itemId: item.id,
+                                                        itemName: item.name,
+                                                        quantity: ''
+                                                    })}
+                                                    className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 text-xs font-medium"
+                                                >
+                                                    + Add
+                                                </button>
+                                            </div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400">Min: {item.minStock} | Max: {item.maxStock || 'N/A'}</div>
+                                        </td>
+                                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                            {item.currentStock <= item.minStock ? (
+                                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                                                    Low Stock
+                                                </span>
+                                            ) : (
+                                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                    In Stock
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                            {item.lastRestocked ? new Date(item.lastRestocked).toLocaleDateString() : 'Never'}
+                                        </td>
+                                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button
+                                                onClick={() => handleEdit(item)}
+                                                className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-4"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(item.id)}
+                                                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -377,7 +379,7 @@ const Inventory = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 
