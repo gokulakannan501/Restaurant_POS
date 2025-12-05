@@ -107,7 +107,7 @@ const Attendance = () => {
     const downloadCSV = () => {
         if (!reportData?.report) return;
 
-        const headers = ['Employee', 'Role', 'Total Days', 'Present Days', 'Total Hours', 'Avg Hours/Day', 'Late Check-ins', 'Early Check-outs'];
+        const headers = ['Employee', 'Role', 'Total Days', 'Present Days', 'Absent Days', 'Notes'];
         const csvContent = [
             headers.join(','),
             ...reportData.report.map(row => [
@@ -115,10 +115,8 @@ const Attendance = () => {
                 row.userRole,
                 row.totalDays,
                 row.presentDays,
-                (row.totalHours || 0).toFixed(2),
-                (row.averageHours || 0).toFixed(2),
-                row.lateCheckIns,
-                row.earlyCheckOuts
+                row.absentDays || 0,
+                `"${row.notesText || 'No notes'}"` // Wrap in quotes for CSV
             ].join(','))
         ].join('\n');
 
@@ -284,8 +282,8 @@ const Attendance = () => {
                                         <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Employee</th>
                                         <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Days</th>
                                         <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Present</th>
-                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Hours</th>
-                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Avg Hours</th>
+                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Absent</th>
+                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Notes</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -294,8 +292,8 @@ const Attendance = () => {
                                             <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white font-medium">{row.userName}</td>
                                             <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{row.totalDays}</td>
                                             <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-green-600 font-medium">{row.presentDays}</td>
-                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{(row.totalHours || 0).toFixed(1)}</td>
-                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{(row.averageHours || 0).toFixed(1)}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-red-600 font-medium">{row.absentDays || 0}</td>
+                                            <td className="px-4 sm:px-6 py-4 text-gray-500 dark:text-gray-400 text-sm max-w-xs truncate" title={row.notesText}>{row.notesText || 'No notes'}</td>
                                         </tr>
                                     ))}
                                 </tbody>

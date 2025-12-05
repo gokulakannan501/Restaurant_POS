@@ -37,29 +37,17 @@ export const markAttendance = async (req, res) => {
 
     if (existingRecord) {
         // Update existing
-        const updateData = {
-            status,
-            notes: notes || existingRecord.notes,
-        };
-
-        // If marking present and no checkIn exists, set it
-        if (status === 'PRESENT' && !existingRecord.checkIn) {
-            const checkInTime = new Date(date);
-            checkInTime.setHours(9, 0, 0, 0);
-            updateData.checkIn = checkInTime;
-        }
-
         attendance = await prisma.attendance.update({
             where: { id: existingRecord.id },
-            data: updateData,
+            data: {
+                status,
+                notes: notes || existingRecord.notes,
+            },
         });
     } else {
         // Create new
         const attendanceDate = new Date(date);
         attendanceDate.setHours(0, 0, 0, 0);
-
-        const checkInTime = new Date(date);
-        checkInTime.setHours(9, 0, 0, 0);
 
         attendance = await prisma.attendance.create({
             data: {
@@ -67,7 +55,6 @@ export const markAttendance = async (req, res) => {
                 date: attendanceDate,
                 status,
                 notes: notes || '',
-                checkIn: status === 'PRESENT' ? checkInTime : new Date(),
             },
         });
     }
@@ -212,10 +199,8 @@ export const getReport = async (req, res) => {
                 userRole: record.user.role,
                 totalDays: 0,
                 presentDays: 0,
-                totalHours: 0,
-                averageHours: 0,
-                lateCheckIns: 0,
-                earlyCheckOuts: 0,
+                absentDays: 0,
+                notes: [], // Collect all notes
             };
         }
 
@@ -223,40 +208,25 @@ export const getReport = async (req, res) => {
 
         if (record.status === 'PRESENT') {
             userStats[userId].presentDays++;
+        } else if (record.status === 'ABSENT') {
+            userStats[userId].absentDays++;
+        }
 
-            if (record.checkIn && record.checkOut) {
-                const duration = new Date(record.checkOut) - new Date(record.checkIn);
-                const hours = duration / (1000 * 60 * 60);
-                userStats[userId].totalHours += hours;
-            }
-
-            // Check for late check-in (after 9:30 AM)
-            if (record.checkIn) {
-                const checkInTime = new Date(record.checkIn);
-                const checkInHour = checkInTime.getHours();
-                const checkInMinute = checkInTime.getMinutes();
-                if (checkInHour > 9 || (checkInHour === 9 && checkInMinute > 30)) {
-                    userStats[userId].lateCheckIns++;
-                }
-            }
-
-            // Check for early check-out (before 5:30 PM)
-            if (record.checkOut) {
-                const checkOutTime = new Date(record.checkOut);
-                const checkOutHour = checkOutTime.getHours();
-                const checkOutMinute = checkOutTime.getMinutes();
-                if (checkOutHour < 17 || (checkOutHour === 17 && checkOutMinute < 30)) {
-                    userStats[userId].earlyCheckOuts++;
-                }
-            }
+        // Collect notes if they exist
+        if (record.notes) {
+            userStats[userId].notes.push({
+                date: record.date,
+                note: record.notes
+            });
         }
     });
 
-    // Calculate averages
+    // Format notes for display
     Object.values(userStats).forEach(stats => {
-        if (stats.presentDays > 0) {
-            stats.averageHours = stats.totalHours / stats.presentDays;
-        }
+        // Convert notes array to a readable string
+        stats.notesText = stats.notes.map(n =>
+            `${new Date(n.date).toLocaleDateString()}: ${n.note}`
+        ).join('; ') || 'No notes';
     });
 
     // Convert to array and sort by name
