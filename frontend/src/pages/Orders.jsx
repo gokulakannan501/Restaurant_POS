@@ -7,6 +7,11 @@ const Orders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('ACTIVE'); // ACTIVE, COMPLETED, CANCELLED
+    const [dateFilter, setDateFilter] = useState('TODAY'); // TODAY, YESTERDAY, WEEK, MONTH, CUSTOM
+    const [customDateRange, setCustomDateRange] = useState({
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date().toISOString().split('T')[0]
+    });
     const [highlightedId, setHighlightedId] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
@@ -50,11 +55,50 @@ const Orders = () => {
         }
     };
 
-    const filteredOrders = orders.filter(order => {
-        if (filter === 'ACTIVE') {
-            return !['COMPLETED', 'CANCELLED'].includes(order.status);
+    const getDateRange = () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        switch (dateFilter) {
+            case 'TODAY':
+                return { start: today, end: new Date() };
+            case 'YESTERDAY':
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayEnd = new Date(yesterday);
+                yesterdayEnd.setHours(23, 59, 59, 999);
+                return { start: yesterday, end: yesterdayEnd };
+            case 'WEEK':
+                const weekAgo = new Date(today);
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return { start: weekAgo, end: new Date() };
+            case 'MONTH':
+                const monthAgo = new Date(today);
+                monthAgo.setDate(monthAgo.getDate() - 30);
+                return { start: monthAgo, end: new Date() };
+            case 'CUSTOM':
+                const start = new Date(customDateRange.startDate);
+                start.setHours(0, 0, 0, 0);
+                const end = new Date(customDateRange.endDate);
+                end.setHours(23, 59, 59, 999);
+                return { start, end };
+            default:
+                return { start: today, end: new Date() };
         }
-        return order.status === filter;
+    };
+
+    const filteredOrders = orders.filter(order => {
+        // Status filter
+        const statusMatch = filter === 'ACTIVE'
+            ? !['COMPLETED', 'CANCELLED'].includes(order.status)
+            : order.status === filter;
+
+        // Date filter
+        const orderDate = new Date(order.createdAt);
+        const { start, end } = getDateRange();
+        const dateMatch = orderDate >= start && orderDate <= end;
+
+        return statusMatch && dateMatch;
     });
 
     const getStatusColor = (status) => {
@@ -79,10 +123,11 @@ const Orders = () => {
 
     return (
         <div className="bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg p-6 transition-all duration-300">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Orders</h1>
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Status Filter */}
                     <div className="flex bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-1 overflow-x-auto">
                         {['ACTIVE', 'COMPLETED', 'CANCELLED'].map((status) => (
                             <button
@@ -105,6 +150,60 @@ const Orders = () => {
                         New Order
                     </button>
                 </div>
+            </div>
+
+            {/* Date Filter Section */}
+            <div className="mb-6 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Date:</span>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    {['TODAY', 'YESTERDAY', 'WEEK', 'MONTH', 'CUSTOM'].map((period) => (
+                        <button
+                            key={period}
+                            onClick={() => setDateFilter(period)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${dateFilter === period
+                                ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                }`}
+                        >
+                            {period === 'WEEK' ? 'Last 7 Days' : period === 'MONTH' ? 'Last 30 Days' : period.charAt(0) + period.slice(1).toLowerCase()}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Custom Date Range */}
+                {dateFilter === 'CUSTOM' && (
+                    <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center w-full sm:w-auto">
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs text-gray-600 dark:text-gray-400">From:</label>
+                            <input
+                                type="date"
+                                value={customDateRange.startDate}
+                                onChange={(e) => setCustomDateRange({ ...customDateRange, startDate: e.target.value })}
+                                className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs text-gray-600 dark:text-gray-400">To:</label>
+                            <input
+                                type="date"
+                                value={customDateRange.endDate}
+                                onChange={(e) => setCustomDateRange({ ...customDateRange, endDate: e.target.value })}
+                                className="px-2 py-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Orders Count */}
+            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                Showing <span className="font-bold text-gray-900 dark:text-white">{filteredOrders.length}</span> order{filteredOrders.length !== 1 ? 's' : ''}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
