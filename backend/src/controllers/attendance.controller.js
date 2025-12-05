@@ -213,6 +213,7 @@ export const getReport = async (req, res) => {
                 totalDays: 0,
                 presentDays: 0,
                 totalHours: 0,
+                averageHours: 0,
                 lateCheckIns: 0,
                 earlyCheckOuts: 0,
             };

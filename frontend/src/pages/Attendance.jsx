@@ -115,8 +115,8 @@ const Attendance = () => {
                 row.userRole,
                 row.totalDays,
                 row.presentDays,
-                row.totalHours.toFixed(2),
-                row.averageHours.toFixed(2),
+                (row.totalHours || 0).toFixed(2),
+                (row.averageHours || 0).toFixed(2),
                 row.lateCheckIns,
                 row.earlyCheckOuts
             ].join(','))
@@ -294,8 +294,8 @@ const Attendance = () => {
                                             <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white font-medium">{row.userName}</td>
                                             <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{row.totalDays}</td>
                                             <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-green-600 font-medium">{row.presentDays}</td>
-                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{row.totalHours.toFixed(1)}</td>
-                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{row.averageHours.toFixed(1)}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{(row.totalHours || 0).toFixed(1)}</td>
+                                            <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">{(row.averageHours || 0).toFixed(1)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
