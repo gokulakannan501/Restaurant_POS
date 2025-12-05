@@ -90,7 +90,7 @@
         visibility: visible !important;
     }
 
-    /* 6. PAGE SETUP */
+    /* 6. PAGE SETUP - HIDE BROWSER HEADERS/FOOTERS */
     @page {
         size: auto;
         margin: 0mm;
@@ -101,5 +101,32 @@
     button,
     .btn {
         display: none !important;
+    }
+
+    /* 7. HIDE BROWSER DEFAULT HEADERS/FOOTERS */
+    /* This removes URL, date, page numbers that browsers add */
+    @page {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    /* Additional browser-specific fixes */
+    body::before,
+    body::after {
+        display: none !important;
+    }
+
+    /* Hide any auto-generated content */
+    *::before,
+    *::after {
+        display: none !important;
+    }
+
+    /* Restore pseudo-elements for receipt area only */
+    #receipt-area::before,
+    #receipt-area::after,
+    #receipt-area *::before,
+    #receipt-area *::after {
+        display: inline !important;
     }
 }
