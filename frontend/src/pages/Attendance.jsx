@@ -82,7 +82,7 @@ const Attendance = () => {
                 userId,
                 date: selectedDate,
                 status,
-                notes: currentData.notes
+                notes: currentData.notes || ''
             });
 
             setAttendanceData(prev => ({
@@ -92,6 +92,30 @@ const Attendance = () => {
             toast.success('Attendance updated');
         } catch (error) {
             toast.error('Failed to update attendance');
+        }
+    };
+
+    const handleUpdateNotes = async (userId, notes) => {
+        try {
+            const currentData = attendanceData[userId] || {};
+
+            // Update local state immediately
+            setAttendanceData(prev => ({
+                ...prev,
+                [userId]: { ...prev[userId], notes }
+            }));
+
+            // If attendance is already marked, save to backend
+            if (currentData.status) {
+                await api.post('/attendance/mark', {
+                    userId,
+                    date: selectedDate,
+                    status: currentData.status,
+                    notes
+                });
+            }
+        } catch (error) {
+            console.error('Failed to update notes:', error);
         }
     };
 
@@ -216,12 +240,18 @@ const Attendance = () => {
                                                 <input
                                                     type="text"
                                                     placeholder="Add note..."
-                                                    className="w-full bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-primary-500 outline-none text-sm"
-                                                    defaultValue={userAttendance.notes || ''}
+                                                    className="w-full bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-primary-500 outline-none text-sm text-gray-900 dark:text-white"
+                                                    value={userAttendance.notes || ''}
+                                                    onChange={(e) => {
+                                                        // Update local state as user types
+                                                        setAttendanceData(prev => ({
+                                                            ...prev,
+                                                            [user.id]: { ...prev[user.id], notes: e.target.value }
+                                                        }));
+                                                    }}
                                                     onBlur={(e) => {
-                                                        if (e.target.value !== userAttendance.notes) {
-                                                            // Update note logic here if needed
-                                                        }
+                                                        // Save to backend when user leaves the field
+                                                        handleUpdateNotes(user.id, e.target.value);
                                                     }}
                                                 />
                                             </td>
