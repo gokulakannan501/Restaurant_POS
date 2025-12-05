@@ -94,8 +94,6 @@ const Login = () => {
                                     className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base transform focus:scale-105 duration-300"
                                     placeholder="you@example.com or +1234567890"
                                 />
-                                {/* Animated underline on focus */}
-                                <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-primary-600 group-focus-within:w-full transition-all duration-500"></div>
                             </div>
                         </div>
 
@@ -118,8 +116,6 @@ const Login = () => {
                                     className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base transform focus:scale-105 duration-300"
                                     placeholder="••••••••"
                                 />
-                                {/* Animated underline on focus */}
-                                <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-primary-600 group-focus-within:w-full transition-all duration-500"></div>
                             </div>
                         </div>
 
