@@ -44,42 +44,58 @@ const Dashboard = () => {
         {
             title: 'Today\'s Sales',
             value: `₹${stats.todaySales.toLocaleString()}`,
+            numericValue: stats.todaySales,
+            trend: '+12%',
+            trendUp: true,
             icon: (
-                <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             ),
-            bg: 'bg-green-50',
+            gradient: 'from-green-500 to-emerald-600',
+            bgGradient: 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20',
         },
         {
             title: 'Today\'s Orders',
             value: stats.todayOrders,
+            numericValue: stats.todayOrders,
+            trend: '+8%',
+            trendUp: true,
             icon: (
-                <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                 </svg>
             ),
-            bg: 'bg-blue-50',
+            gradient: 'from-blue-500 to-cyan-600',
+            bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20',
         },
         {
             title: 'Active Orders',
             value: stats.activeOrders,
+            numericValue: stats.activeOrders,
+            trend: stats.activeOrders > 5 ? 'High' : 'Normal',
+            trendUp: stats.activeOrders > 5,
             icon: (
-                <svg className="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             ),
-            bg: 'bg-orange-50',
+            gradient: 'from-orange-500 to-amber-600',
+            bgGradient: 'from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20',
         },
         {
             title: 'Occupied Tables',
             value: stats.occupiedTables,
+            numericValue: stats.occupiedTables,
+            trend: `${Math.round((stats.occupiedTables / 10) * 100)}%`,
+            trendUp: stats.occupiedTables > 5,
             icon: (
-                <svg className="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
             ),
-            bg: 'bg-purple-50',
+            gradient: 'from-purple-500 to-pink-600',
+            bgGradient: 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20',
         },
     ];
 
@@ -109,14 +125,59 @@ const Dashboard = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
                 {statCards.map((stat, index) => (
-                    <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{stat.title}</p>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{stat.value}</p>
+                    <div
+                        key={index}
+                        className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group overflow-hidden"
+                        style={{
+                            animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
+                        }}
+                    >
+                        {/* Gradient border effect */}
+                        <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-2xl`}></div>
+
+                        {/* Animated background glow */}
+                        <div className={`absolute -inset-1 bg-gradient-to-br ${stat.gradient} rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500`}></div>
+
+                        <div className="relative z-10">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex-1">
+                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                                        {stat.title}
+                                    </p>
+                                    <div className="flex items-baseline gap-2">
+                                        <p className="text-3xl font-bold text-gray-900 dark:text-white group-hover:scale-105 transition-transform duration-300">
+                                            {stat.value}
+                                        </p>
+                                        {/* Trend indicator */}
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${stat.trendUp
+                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                                : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                                            }`}>
+                                            {stat.trendUp && (
+                                                <svg className="w-3 h-3 mr-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                                </svg>
+                                            )}
+                                            {stat.trend}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Icon with gradient background */}
+                                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.bgGradient} group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg`}>
+                                    {stat.icon}
+                                </div>
                             </div>
-                            <div className={`p-3 rounded-xl ${stat.bg} bg-opacity-50 group-hover:scale-110 transition-transform duration-300`}>
-                                {stat.icon}
+
+                            {/* Progress bar */}
+                            <div className="mt-4 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full bg-gradient-to-r ${stat.gradient} rounded-full transition-all duration-1000 ease-out`}
+                                    style={{
+                                        width: `${Math.min((stat.numericValue / (stat.numericValue + 10)) * 100, 100)}%`,
+                                        animation: 'progressBar 1.5s ease-out'
+                                    }}
+                                ></div>
                             </div>
                         </div>
                     </div>
