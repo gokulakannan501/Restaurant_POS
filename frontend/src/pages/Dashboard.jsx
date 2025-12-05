@@ -92,7 +92,7 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="w-full animate-fade-in">
+        <div className="w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400">
