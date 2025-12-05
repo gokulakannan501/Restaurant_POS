@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
-import useAuthStore from '../store/authStore';
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
@@ -82,8 +81,6 @@ const Dashboard = () => {
         },
     ];
 
-    const { user } = useAuthStore();
-
     const getGreeting = () => {
         const hour = new Date().getHours();
         if (hour < 12) return 'Good Morning';
@@ -92,11 +89,11 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full animate-fade-in">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400">
-                        {getGreeting()}, {user?.name || 'Admin'}
+                        {getGreeting()}, Admin
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-1">Here's what's happening in your restaurant today.</p>
                 </div>
