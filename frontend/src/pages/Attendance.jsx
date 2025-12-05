@@ -40,7 +40,7 @@ const Attendance = () => {
     const fetchUsers = async () => {
         try {
             const response = await api.get('/auth/users');
-            setUsers(response.data.data);
+            setUsers(response.data.data || []);
         } catch (error) {
             toast.error('Failed to fetch users');
         }
@@ -51,7 +51,7 @@ const Attendance = () => {
             setLoading(true);
             // Fetch attendance for specific date
             const response = await api.get(`/attendance?startDate=${date}&endDate=${date}`);
-            const records = response.data.data;
+            const records = response.data.data || [];
 
             const data = {};
             records.forEach(record => {
@@ -98,7 +98,7 @@ const Attendance = () => {
     const generateReport = async () => {
         try {
             const response = await api.get(`/attendance/report?startDate=${reportRange.startDate}&endDate=${reportRange.endDate}`);
-            setReportData(response.data.data);
+            setReportData(response.data.data || null);
         } catch (error) {
             toast.error('Failed to generate report');
         }
