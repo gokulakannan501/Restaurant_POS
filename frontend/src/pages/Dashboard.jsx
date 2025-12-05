@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
+import useAuthStore from '../store/authStore';
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
@@ -11,6 +12,7 @@ const Dashboard = () => {
         lowStockItems: 0,
     });
     const [loading, setLoading] = useState(true);
+    const { user } = useAuthStore();
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -89,11 +91,11 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="w-full animate-fade-in">
+        <div className="w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400">
-                        {getGreeting()}, Admin
+                        {getGreeting()}, {user?.name || 'User'}
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-1">Here's what's happening in your restaurant today.</p>
                 </div>
