@@ -14,7 +14,14 @@ const Login = () => {
         e.preventDefault();
         const success = await login(email, password);
         if (success) {
-            navigate('/');
+            const user = useAuthStore.getState().user;
+            if (user?.role === 'WAITER') {
+                navigate('/tables');
+            } else if (user?.role === 'CASHIER') {
+                navigate('/billing');
+            } else {
+                navigate('/');
+            }
         }
     };
 

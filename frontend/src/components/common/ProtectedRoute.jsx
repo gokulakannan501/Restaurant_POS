@@ -19,6 +19,12 @@ const ProtectedRoute = ({ children, allowedRoles = [], ...props }) => {
     }
 
     if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
+        if (user?.role === 'WAITER') {
+            return <Navigate to="/tables" replace />;
+        }
+        if (user?.role === 'CASHIER') {
+            return <Navigate to="/billing" replace />;
+        }
         return <Navigate to="/" replace />;
     }
 

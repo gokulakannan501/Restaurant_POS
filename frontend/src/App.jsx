@@ -23,11 +23,18 @@ import Users from './pages/Users';
 import Attendance from './pages/Attendance';
 
 function App() {
-    const { isAuthenticated, checkAuth } = useAuthStore();
+    const { isAuthenticated, user, checkAuth } = useAuthStore();
 
     useEffect(() => {
         checkAuth();
     }, [checkAuth]);
+
+    const getHomeRoute = () => {
+        if (!user) return '/';
+        if (user.role === 'WAITER') return '/tables';
+        if (user.role === 'CASHIER') return '/billing';
+        return '/';
+    };
 
     return (
         <Router>
@@ -35,13 +42,13 @@ function App() {
             <Routes>
                 {/* Public Route */}
                 <Route path="/login" element={
-                    isAuthenticated ? <Navigate to="/" replace /> : <Login />
+                    isAuthenticated ? <Navigate to={getHomeRoute()} replace /> : <Login />
                 } />
 
                 {/* Protected Routes */}
                 <Route element={<Layout />}>
                     <Route path="/" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}>
                             <Dashboard />
                         </ProtectedRoute>
                     } />
@@ -115,7 +122,7 @@ function App() {
 
                 {/* Redirect to login if not authenticated */}
                 <Route path="*" element={
-                    isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/login" replace />
+                    isAuthenticated ? <Navigate to={getHomeRoute()} replace /> : <Navigate to="/login" replace />
                 } />
             </Routes>
         </Router>
