@@ -8,6 +8,7 @@ const Orders = () => {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('ACTIVE'); // ACTIVE, COMPLETED, CANCELLED
     const [dateFilter, setDateFilter] = useState('TODAY'); // TODAY, YESTERDAY, WEEK, MONTH, CUSTOM
+    const [searchTerm, setSearchTerm] = useState('');
     const [customDateRange, setCustomDateRange] = useState({
         startDate: new Date().toISOString().split('T')[0],
         endDate: new Date().toISOString().split('T')[0]
@@ -98,7 +99,14 @@ const Orders = () => {
         const { start, end } = getDateRange();
         const dateMatch = orderDate >= start && orderDate <= end;
 
-        return statusMatch && dateMatch;
+        // Search filter
+        const lowerSearch = searchTerm.toLowerCase();
+        const searchMatch = searchTerm === '' ||
+            (order.table?.number && order.table.number.toString().includes(lowerSearch)) ||
+            (order.customerName && order.customerName.toLowerCase().includes(lowerSearch)) ||
+            (order.orderNumber && order.orderNumber.toLowerCase().includes(lowerSearch));
+
+        return statusMatch && dateMatch && searchMatch;
     });
 
     const getStatusColor = (status) => {
@@ -141,6 +149,20 @@ const Orders = () => {
                                 {status.charAt(0) + status.slice(1).toLowerCase()}
                             </button>
                         ))}
+                    </div>
+
+                    {/* Search Input */}
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Search Table # or Name"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm w-full sm:w-64 transition-all"
+                        />
+                        <svg className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                     </div>
 
                     <button

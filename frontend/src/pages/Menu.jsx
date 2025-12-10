@@ -31,7 +31,7 @@ const Menu = () => {
         sortOrder: 0
     });
 
-    const { addItem, items: cartItems } = useCartStore();
+    const { addItem, items: cartItems, updateQuantity } = useCartStore();
     const { user } = useAuthStore();
     const location = useLocation();
     const navigate = useNavigate();
@@ -417,8 +417,8 @@ const Menu = () => {
                                 {/* Veg/Non-Veg badge with better styling */}
                                 <div className="absolute top-3 right-3">
                                     <span className={`px-3 py-1.5 rounded-full text-xs font-black shadow-xl backdrop-blur-sm border-2 ${item.isVeg
-                                            ? 'bg-green-100/90 text-green-800 border-green-300 dark:bg-green-900/90 dark:text-green-100 dark:border-green-700'
-                                            : 'bg-red-100/90 text-red-800 border-red-300 dark:bg-red-900/90 dark:text-red-100 dark:border-red-700'
+                                        ? 'bg-green-100/90 text-green-800 border-green-300 dark:bg-green-900/90 dark:text-green-100 dark:border-green-700'
+                                        : 'bg-red-100/90 text-red-800 border-red-300 dark:bg-red-900/90 dark:text-red-100 dark:border-red-700'
                                         }`}>
                                         {item.isVeg ? '🌿 VEG' : '🍖 NON-VEG'}
                                     </span>
@@ -448,17 +448,63 @@ const Menu = () => {
                                         </span>
                                     </div>
 
-                                    {/* Enhanced Add button */}
+                                    {/* Enhanced Add button with Quantity Controls */}
                                     {item.isAvailable && (
-                                        <button
-                                            onClick={() => handleAddToCart(item)}
-                                            className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-2.5 px-5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-105 flex items-center gap-2"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                            </svg>
-                                            Add
-                                        </button>
+                                        (() => {
+                                            const cartItemIndex = cartItems.findIndex(cartItem => cartItem.menuItemId === item.id);
+                                            const quantity = cartItemIndex > -1 ? cartItems[cartItemIndex].quantity : 0;
+
+                                            if (quantity > 0) {
+                                                return (
+                                                    <div className="flex items-center bg-primary-600 rounded-xl shadow-lg shadow-primary-500/30">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (quantity === 1) {
+                                                                    // We need to access the store's updateQuantity which handles removal if qty becomes 0
+                                                                    // Or directly use removeItem if we exposed it, but updateQuantity(index, 0) works too based on store logic
+                                                                    updateQuantity(cartItemIndex, 0);
+                                                                    toast.success(`Removed ${item.name} from cart`);
+                                                                } else {
+                                                                    updateQuantity(cartItemIndex, quantity - 1);
+                                                                }
+                                                            }}
+                                                            className="px-3 py-2 text-white hover:bg-primary-700 rounded-l-xl transition-colors font-bold"
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="px-3 py-2 text-white font-bold bg-primary-600 border-x border-primary-500 min-w-[2.5rem] text-center">
+                                                            {quantity}
+                                                        </span>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                addItem(item, null, 1);
+                                                                toast.success(`Added ${item.name} to cart`);
+                                                            }}
+                                                            className="px-3 py-2 text-white hover:bg-primary-700 rounded-r-xl transition-colors font-bold"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                );
+                                            }
+
+                                            return (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Prevent card click
+                                                        handleAddToCart(item);
+                                                    }}
+                                                    className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white py-2.5 px-5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-105 flex items-center gap-2"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                    Add
+                                                </button>
+                                            );
+                                        })()
                                     )}
                                 </div>
                             </div>
