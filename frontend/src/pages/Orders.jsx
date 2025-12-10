@@ -102,19 +102,23 @@ const Orders = () => {
         // Search filter
         const lowerSearch = searchTerm.toLowerCase();
 
-        // Debug logging
-        // console.log('Filtering order:', order.id, 'Table:', order.table, 'Search:', lowerSearch);
+        // Construct a comprehensive searchable string based on what's visible on the UI
+        let searchableText = '';
 
-        const tableNum = order.table?.number ? order.table.number.toString().toLowerCase() : '';
-        const custName = order.customerName ? order.customerName.toLowerCase() : '';
-        const orderNum = order.orderNumber ? order.orderNumber.toLowerCase() : '';
+        // Add Order #
+        if (order.orderNumber) searchableText += order.orderNumber.toLowerCase() + ' ';
 
-        const searchMatch = searchTerm === '' ||
-            tableNum.includes(lowerSearch) ||
-            custName.includes(lowerSearch) ||
-            orderNum.includes(lowerSearch);
+        // Add Table info (e.g. "Table T1")
+        if (order.table?.number) {
+            searchableText += `table ${order.table.number.toString().toLowerCase()} `;
+            searchableText += `${order.table.number.toString().toLowerCase()} `; // Also just the number
+        }
 
-        return statusMatch && dateMatch && searchMatch;
+        // Add Customer Name
+        if (order.customerName) searchableText += order.customerName.toLowerCase() + ' ';
+
+        // Check if the search term exists anywhere in our constructed string
+        return statusMatch && dateMatch && (searchTerm === '' || searchableText.includes(lowerSearch));
     });
 
     const getStatusColor = (status) => {
