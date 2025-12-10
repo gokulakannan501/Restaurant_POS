@@ -50,6 +50,12 @@ const Tables = () => {
         }
     };
 
+    const handleAddOrder = (e, table) => {
+        e.stopPropagation();
+        setTableId(table.id, table.number);
+        navigate('/menu', { state: { tableId: table.id, tableNumber: table.number } });
+    };
+
     const handleOpenModal = (table = null) => {
         if (table) {
             setEditingTable(table);
@@ -187,13 +193,13 @@ const Tables = () => {
                             animation: `fadeInUp 0.5s ease-out ${index * 0.05}s both`
                         }}
                     >
-                        <button
+                        <div
                             onClick={() => handleTableClick(table)}
-                            className={`w-full relative p-6 rounded-2xl border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 text-left overflow-hidden ${table.status === 'AVAILABLE'
-                                    ? 'border-green-300 hover:border-green-400 bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-green-900/20 dark:border-green-700 dark:hover:border-green-600'
-                                    : table.status === 'OCCUPIED'
-                                        ? 'border-red-300 hover:border-red-400 bg-gradient-to-br from-white to-red-50 dark:from-gray-800 dark:to-red-900/20 dark:border-red-700 dark:hover:border-red-600'
-                                        : 'border-yellow-300 hover:border-yellow-400 bg-gradient-to-br from-white to-yellow-50 dark:from-gray-800 dark:to-yellow-900/20 dark:border-yellow-700 dark:hover:border-yellow-600'
+                            className={`w-full relative p-6 rounded-2xl border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 text-left overflow-hidden cursor-pointer ${table.status === 'AVAILABLE'
+                                ? 'border-green-300 hover:border-green-400 bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-green-900/20 dark:border-green-700 dark:hover:border-green-600'
+                                : table.status === 'OCCUPIED'
+                                    ? 'border-red-300 hover:border-red-400 bg-gradient-to-br from-white to-red-50 dark:from-gray-800 dark:to-red-900/20 dark:border-red-700 dark:hover:border-red-600'
+                                    : 'border-yellow-300 hover:border-yellow-400 bg-gradient-to-br from-white to-yellow-50 dark:from-gray-800 dark:to-yellow-900/20 dark:border-yellow-700 dark:hover:border-yellow-600'
                                 }`}
                         >
                             {/* Animated glow effect for occupied tables */}
@@ -203,20 +209,20 @@ const Tables = () => {
 
                             {/* Gradient border glow on hover */}
                             <div className={`absolute -inset-1 bg-gradient-to-br ${table.status === 'AVAILABLE'
-                                    ? 'from-green-400 to-emerald-500'
-                                    : table.status === 'OCCUPIED'
-                                        ? 'from-red-400 to-rose-500'
-                                        : 'from-yellow-400 to-amber-500'
+                                ? 'from-green-400 to-emerald-500'
+                                : table.status === 'OCCUPIED'
+                                    ? 'from-red-400 to-rose-500'
+                                    : 'from-yellow-400 to-amber-500'
                                 } rounded-2xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
 
                             <div className="relative z-10">
                                 <div className="flex justify-between items-start mb-4">
                                     {/* Large table number with gradient */}
                                     <span className={`text-4xl font-black bg-clip-text text-transparent bg-gradient-to-br ${table.status === 'AVAILABLE'
-                                            ? 'from-green-600 to-emerald-700 dark:from-green-400 dark:to-emerald-500'
-                                            : table.status === 'OCCUPIED'
-                                                ? 'from-red-600 to-rose-700 dark:from-red-400 dark:to-rose-500'
-                                                : 'from-yellow-600 to-amber-700 dark:from-yellow-400 dark:to-amber-500'
+                                        ? 'from-green-600 to-emerald-700 dark:from-green-400 dark:to-emerald-500'
+                                        : table.status === 'OCCUPIED'
+                                            ? 'from-red-600 to-rose-700 dark:from-red-400 dark:to-rose-500'
+                                            : 'from-yellow-600 to-amber-700 dark:from-yellow-400 dark:to-amber-500'
                                         } group-hover:scale-110 transition-transform duration-300`}>
                                         {table.number}
                                     </span>
@@ -234,16 +240,16 @@ const Tables = () => {
                                     {/* Capacity with icon */}
                                     <div className="flex items-center text-sm font-medium text-gray-600 dark:text-gray-300">
                                         <div className={`p-1.5 rounded-lg mr-2 ${table.status === 'AVAILABLE'
-                                                ? 'bg-green-100 dark:bg-green-900/30'
-                                                : table.status === 'OCCUPIED'
-                                                    ? 'bg-red-100 dark:bg-red-900/30'
-                                                    : 'bg-yellow-100 dark:bg-yellow-900/30'
+                                            ? 'bg-green-100 dark:bg-green-900/30'
+                                            : table.status === 'OCCUPIED'
+                                                ? 'bg-red-100 dark:bg-red-900/30'
+                                                : 'bg-yellow-100 dark:bg-yellow-900/30'
                                             }`}>
                                             <svg className={`w-4 h-4 ${table.status === 'AVAILABLE'
-                                                    ? 'text-green-600 dark:text-green-400'
-                                                    : table.status === 'OCCUPIED'
-                                                        ? 'text-red-600 dark:text-red-400'
-                                                        : 'text-yellow-600 dark:text-yellow-400'
+                                                ? 'text-green-600 dark:text-green-400'
+                                                : table.status === 'OCCUPIED'
+                                                    ? 'text-red-600 dark:text-red-400'
+                                                    : 'text-yellow-600 dark:text-yellow-400'
                                                 }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                             </svg>
@@ -254,16 +260,16 @@ const Tables = () => {
                                     {/* Floor with icon */}
                                     <div className="flex items-center text-sm font-medium text-gray-600 dark:text-gray-300">
                                         <div className={`p-1.5 rounded-lg mr-2 ${table.status === 'AVAILABLE'
-                                                ? 'bg-green-100 dark:bg-green-900/30'
-                                                : table.status === 'OCCUPIED'
-                                                    ? 'bg-red-100 dark:bg-red-900/30'
-                                                    : 'bg-yellow-100 dark:bg-yellow-900/30'
+                                            ? 'bg-green-100 dark:bg-green-900/30'
+                                            : table.status === 'OCCUPIED'
+                                                ? 'bg-red-100 dark:bg-red-900/30'
+                                                : 'bg-yellow-100 dark:bg-yellow-900/30'
                                             }`}>
                                             <svg className={`w-4 h-4 ${table.status === 'AVAILABLE'
-                                                    ? 'text-green-600 dark:text-green-400'
-                                                    : table.status === 'OCCUPIED'
-                                                        ? 'text-red-600 dark:text-red-400'
-                                                        : 'text-yellow-600 dark:text-yellow-400'
+                                                ? 'text-green-600 dark:text-green-400'
+                                                : table.status === 'OCCUPIED'
+                                                    ? 'text-red-600 dark:text-red-400'
+                                                    : 'text-yellow-600 dark:text-yellow-400'
                                                 }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                             </svg>
@@ -289,8 +295,26 @@ const Tables = () => {
                                         </p>
                                     </div>
                                 )}
+
+                                {/* Add Order Button */}
+                                <div className="mt-4">
+                                    <button
+                                        onClick={(e) => handleAddOrder(e, table)}
+                                        className={`w-full py-2 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all shadow-md transform hover:scale-105 active:scale-95 ${table.status === 'AVAILABLE'
+                                                ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/40 dark:text-green-300 dark:hover:bg-green-800/60'
+                                                : table.status === 'OCCUPIED'
+                                                    ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-800/60'
+                                                    : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/40 dark:text-yellow-300 dark:hover:bg-yellow-800/60'
+                                            }`}
+                                    >
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        Add Order
+                                    </button>
+                                </div>
                             </div>
-                        </button>
+                        </div>
 
                         {/* Admin action buttons with better styling */}
                         {isAdminOrManager && (
