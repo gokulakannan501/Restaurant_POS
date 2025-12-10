@@ -102,7 +102,7 @@ const Orders = () => {
         // Search filter
         const lowerSearch = searchTerm.toLowerCase();
         const searchMatch = searchTerm === '' ||
-            (order.table?.number && order.table.number.toString().includes(lowerSearch)) ||
+            (order.table?.number && order.table.number.toString().toLowerCase().includes(lowerSearch)) ||
             (order.customerName && order.customerName.toLowerCase().includes(lowerSearch)) ||
             (order.orderNumber && order.orderNumber.toLowerCase().includes(lowerSearch));
 
