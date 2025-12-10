@@ -101,10 +101,18 @@ const Orders = () => {
 
         // Search filter
         const lowerSearch = searchTerm.toLowerCase();
+
+        // Debug logging
+        // console.log('Filtering order:', order.id, 'Table:', order.table, 'Search:', lowerSearch);
+
+        const tableNum = order.table?.number ? order.table.number.toString().toLowerCase() : '';
+        const custName = order.customerName ? order.customerName.toLowerCase() : '';
+        const orderNum = order.orderNumber ? order.orderNumber.toLowerCase() : '';
+
         const searchMatch = searchTerm === '' ||
-            (order.table?.number && order.table.number.toString().toLowerCase().includes(lowerSearch)) ||
-            (order.customerName && order.customerName.toLowerCase().includes(lowerSearch)) ||
-            (order.orderNumber && order.orderNumber.toLowerCase().includes(lowerSearch));
+            tableNum.includes(lowerSearch) ||
+            custName.includes(lowerSearch) ||
+            orderNum.includes(lowerSearch);
 
         return statusMatch && dateMatch && searchMatch;
     });
