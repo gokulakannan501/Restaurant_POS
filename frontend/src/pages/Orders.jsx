@@ -121,6 +121,47 @@ const Orders = () => {
         return statusMatch && dateMatch && (searchTerm === '' || searchableText.includes(lowerSearch));
     });
 
+    const handlePrintKOT = (order) => {
+        const printWindow = window.open('', '', 'width=300,height=600');
+        printWindow.document.write('<html><head><title>KOT Print</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: monospace; width: 80mm; margin: 0; padding: 10px; }');
+        printWindow.document.write('.header { text-align: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }');
+        printWindow.document.write('.item { display: flex; justify-content: space-between; margin-bottom: 5px; }');
+        printWindow.document.write('.notes { font-size: 0.8em; font-style: italic; margin-left: 20px; }');
+        printWindow.document.write('.total { border-top: 1px dashed #000; padding-top: 5px; font-weight: bold; text-align: right; }');
+        printWindow.document.write('</style>');
+        printWindow.document.write('</head><body>');
+
+        // Header
+        printWindow.document.write('<div class="header">');
+        printWindow.document.write('<div>KITCHEN ORDER TICKET</div>');
+        printWindow.document.write(`<div>${new Date().toLocaleString()}</div>`);
+        printWindow.document.write(`<div>Table: ${order.table?.number || 'N/A'} | Order: #${order.orderNumber.slice(-4)}</div>`);
+        printWindow.document.write('</div>');
+
+        // Items
+        order.orderItems.forEach(item => {
+            printWindow.document.write('<div class="item">');
+            printWindow.document.write(`<div>${item.quantity} x ${item.menuItem.name} ${item.variant ? `(${item.variant.name})` : ''}</div>`);
+            printWindow.document.write('</div>');
+            if (item.notes) {
+                printWindow.document.write(`<div class="notes">Note: ${item.notes}</div>`);
+            }
+        });
+
+        // Footer Note
+        if (order.notes) {
+            printWindow.document.write('<br/>');
+            printWindow.document.write(`<div style="font-weight:bold;">Order Note: ${order.notes}</div>`);
+        }
+
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => printWindow.print(), 500); // Wait for styles to load
+    };
+
     const getStatusColor = (status) => {
         switch (status) {
             case 'PENDING': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800';
@@ -304,6 +345,15 @@ const Orders = () => {
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
+                                <button
+                                    onClick={() => handlePrintKOT(order)}
+                                    className="bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 py-1 text-sm col-span-2 rounded transition-colors shadow-sm flex items-center justify-center gap-2 mb-2"
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                    </svg>
+                                    Print KOT
+                                </button>
                                 {order.status === 'PENDING' && (
                                     <>
                                         <button
