@@ -94,80 +94,83 @@ const Billing = () => {
 
     const handlePrint = () => {
         if (!selectedBill) return;
+
+        const receiptContent = document.getElementById('receipt-area');
+        if (!receiptContent) {
+            toast.error('Could not find receipt content');
+            return;
+        }
+
+        // Create or get the print overlay container
+        let printOverlay = document.getElementById('print-overlay');
+        if (!printOverlay) {
+            printOverlay = document.createElement('div');
+            printOverlay.id = 'print-overlay';
+            document.body.appendChild(printOverlay);
+        }
+
+        // Copy content
+        printOverlay.innerHTML = receiptContent.innerHTML;
+
+        // Add specific class for styling scope if needed, or just rely on global tailwind
+        // We will use the same ID for the inner wrapper to maintain ID-based styles if any
+
+        // Trigger print
         window.print();
+
+        // Cleanup after print (optional, but cleaner)
+        // setTimeout(() => {
+        //    printOverlay.innerHTML = '';
+        // }, 1000);
     };
 
     return (
         <>
             <style>{`
                 @media print {
-                    /* Hide everything except the receipt */
-                    body * {
-                        visibility: hidden;
+                    /* Hide everything in the body by default */
+                    body > * {
+                        display: none !important;
                     }
                     
-                    #receipt-area, #receipt-area * {
-                        visibility: visible;
-                    }
-                    
-                    #receipt-area {
+                    /* Show only the print overlay */
+                    #print-overlay {
+                        display: block !important;
                         position: absolute;
-                        left: 50%;
+                        left: 0;
                         top: 0;
-                        transform: translateX(-50%);
                         width: 100%;
-                        max-width: 210mm; /* A4 width */
                         margin: 0;
-                        padding: 20mm;
+                        padding: 0;
+                    }
+                    
+                    /* Ensure the overlay content is visible and formatted */
+                    #print-overlay > * {
+                        visibility: visible !important;
+                        display: block !important; 
+                        width: 100%;
+                    }
+
+                    /* Reset basic page styles for printing */
+                    @page {
+                        size: auto;
+                        margin: 0mm;
+                    }
+
+                    /* Receipt specific styling inside the overlay */
+                    #print-overlay .max-w-md {
+                        max-width: none !important; /* Allow full width printing or let the printer handle custom width */
+                        width: 80mm !important;     /* Force standard thermal width or adjust as needed */
+                        margin: 0 auto !important;
+                        padding: 10px !important;
                         box-shadow: none !important;
                         border: none !important;
                     }
-                    
-                    /* Ensure content fits on page */
-                    @page {
-                        size: A4 portrait;
-                        margin: 15mm;
-                    }
-                    
-                    /* Prevent page breaks inside important sections */
-                    #receipt-area > div {
-                        page-break-inside: avoid;
-                    }
-                    
-                    /* Ensure items list doesn't break */
-                    #receipt-area .space-y-3 {
-                        page-break-inside: avoid;
-                    }
-                    
-                    /* Remove backgrounds and shadows */
-                    * {
-                        background: white !important;
-                        box-shadow: none !important;
-                        color: black !important;
-                    }
-                    
-                    /* Make sure all content is visible */
-                    #receipt-area * {
-                        overflow: visible !important;
-                        max-height: none !important;
-                    }
                 }
                 
-                /* For thermal printers (58mm or 80mm) */
-                @media print and (max-width: 100mm) {
-                    #receipt-area {
-                        max-width: 80mm;
-                        padding: 5mm;
-                        font-size: 10px;
-                    }
-                    
-                    #receipt-area h1 {
-                        font-size: 14px;
-                    }
-                    
-                    @page {
-                        size: 80mm auto;
-                        margin: 5mm;
+                @media screen {
+                    #print-overlay {
+                        display: none;
                     }
                 }
             `}</style>
