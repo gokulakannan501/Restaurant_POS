@@ -122,44 +122,60 @@ const Orders = () => {
     });
 
     const handlePrintKOT = (order) => {
-        const printWindow = window.open('', '', 'width=300,height=600');
-        printWindow.document.write('<html><head><title>KOT Print</title>');
-        printWindow.document.write('<style>');
-        printWindow.document.write('body { font-family: monospace; width: 80mm; margin: 0; padding: 10px; }');
-        printWindow.document.write('.header { text-align: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }');
-        printWindow.document.write('.item { display: flex; justify-content: space-between; margin-bottom: 5px; }');
-        printWindow.document.write('.notes { font-size: 0.8em; font-style: italic; margin-left: 20px; }');
-        printWindow.document.write('.total { border-top: 1px dashed #000; padding-top: 5px; font-weight: bold; text-align: right; }');
-        printWindow.document.write('</style>');
-        printWindow.document.write('</head><body>');
+        // Create a hidden iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'absolute';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = 'none';
+        document.body.appendChild(iframe);
 
-        // Header
-        printWindow.document.write('<div class="header">');
-        printWindow.document.write('<div>KITCHEN ORDER TICKET</div>');
-        printWindow.document.write(`<div>${new Date().toLocaleString()}</div>`);
-        printWindow.document.write(`<div>Table: ${order.table?.number || 'N/A'} | Order: #${order.orderNumber.slice(-4)}</div>`);
-        printWindow.document.write('</div>');
+        const htmlContent = `
+            <html>
+            <head>
+                <title>KOT Print</title>
+                <style>
+                    body { font-family: monospace; width: 80mm; margin: 0; padding: 10px; }
+                    .header { text-align: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
+                    .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+                    .notes { font-size: 0.8em; font-style: italic; margin-left: 20px; }
+                    .total { border-top: 1px dashed #000; padding-top: 5px; font-weight: bold; text-align: right; }
+                    @media print {
+                        @page { margin: 0; size: auto; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div>KITCHEN ORDER TICKET</div>
+                    <div>${new Date().toLocaleString()}</div>
+                    <div>Table: ${order.table?.number || 'N/A'} | Order: #${order.orderNumber.slice(-4)}</div>
+                </div>
 
-        // Items
-        order.orderItems.forEach(item => {
-            printWindow.document.write('<div class="item">');
-            printWindow.document.write(`<div>${item.quantity} x ${item.menuItem.name} ${item.variant ? `(${item.variant.name})` : ''}</div>`);
-            printWindow.document.write('</div>');
-            if (item.notes) {
-                printWindow.document.write(`<div class="notes">Note: ${item.notes}</div>`);
-            }
-        });
+                ${order.orderItems.map(item => `
+                    <div class="item">
+                        <div>${item.quantity} x ${item.menuItem.name} ${item.variant ? `(${item.variant.name})` : ''}</div>
+                    </div>
+                    ${item.notes ? `<div class="notes">Note: ${item.notes}</div>` : ''}
+                `).join('')}
 
-        // Footer Note
-        if (order.notes) {
-            printWindow.document.write('<br/>');
-            printWindow.document.write(`<div style="font-weight:bold;">Order Note: ${order.notes}</div>`);
-        }
+                ${order.notes ? `<br/><div style="font-weight:bold;">Order Note: ${order.notes}</div>` : ''}
+            </body>
+            </html>
+        `;
 
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => printWindow.print(), 500); // Wait for styles to load
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(htmlContent);
+        doc.close();
+
+        setTimeout(() => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 1000);
+        }, 500);
     };
 
     const getStatusColor = (status) => {

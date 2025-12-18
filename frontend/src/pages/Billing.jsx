@@ -95,11 +95,13 @@ const Billing = () => {
     const handlePrint = () => {
         if (!selectedBill) return;
 
-        const printWindow = window.open('', '_blank');
-        if (!printWindow) {
-            toast.error('Please allow popups to print');
-            return;
-        }
+        // Create a hidden iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'absolute';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = 'none';
+        document.body.appendChild(iframe);
 
         const billDate = new Date(selectedBill.createdAt).toLocaleString();
         const itemsHtml = selectedBill.orders?.map(order =>
@@ -142,10 +144,9 @@ const Billing = () => {
                         font-size: 12px;
                         line-height: 1.4;
                         margin: 0;
-                        padding: 15mm;
+                        padding: 5mm; 
                         width: 100%;
-                        max-width: 80mm; /* Force receipt width */
-                        margin: 0 auto;  /* Center on page */
+                        max-width: 80mm; 
                     }
                     .header { text-align: center; margin-bottom: 15px; }
                     .header h1 { font-size: 18px; font-weight: bold; margin: 0 0 5px 0; }
@@ -170,7 +171,6 @@ const Billing = () => {
                     
                     @media print {
                         @page { margin: 0; size: auto; }
-                        body { padding: 10mm; }
                     }
                 </style>
             </head>
@@ -200,16 +200,24 @@ const Billing = () => {
                 </div>
                 
                 ${paymentHtml}
-                
-                <script>
-                    window.onload = function() { window.print(); window.close(); }
-                </script>
             </body>
             </html>
         `;
 
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(htmlContent);
+        doc.close();
+
+        // Wait for content to render, then print
+        setTimeout(() => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            // Remove iframe after a delay to allow print dialog to open
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 1000);
+        }, 500);
     };
 
     return (
