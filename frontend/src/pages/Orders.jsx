@@ -122,13 +122,17 @@ const Orders = () => {
     });
 
     const handlePrintKOT = (order) => {
-        // Create a hidden iframe
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'absolute';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = 'none';
-        document.body.appendChild(iframe);
+        // Use a persistent hidden iframe to prevent content from being removed during printing
+        let iframe = document.getElementById('kot-print-frame');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.id = 'kot-print-frame';
+            iframe.style.position = 'absolute';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
+        }
 
         const htmlContent = `
             <html>
@@ -172,9 +176,8 @@ const Orders = () => {
         setTimeout(() => {
             iframe.contentWindow.focus();
             iframe.contentWindow.print();
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-            }, 1000);
+            // Do NOT remove the iframe. It's hidden anyway.
+            // Removing it causes the Android print spooler to fail.
         }, 500);
     };
 

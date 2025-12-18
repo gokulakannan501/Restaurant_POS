@@ -95,13 +95,17 @@ const Billing = () => {
     const handlePrint = () => {
         if (!selectedBill) return;
 
-        // Create a hidden iframe
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'absolute';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = 'none';
-        document.body.appendChild(iframe);
+        // Use a persistent hidden iframe to prevent content from being removed during printing
+        let iframe = document.getElementById('receipt-print-frame');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.id = 'receipt-print-frame';
+            iframe.style.position = 'absolute';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
+        }
 
         const billDate = new Date(selectedBill.createdAt).toLocaleString();
         const itemsHtml = selectedBill.orders?.map(order =>
@@ -213,10 +217,8 @@ const Billing = () => {
         setTimeout(() => {
             iframe.contentWindow.focus();
             iframe.contentWindow.print();
-            // Remove iframe after a delay to allow print dialog to open
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-            }, 1000);
+            // Do NOT remove the iframe. It's hidden anyway.
+            // Removing it causes the Android print spooler to fail.
         }, 500);
     };
 
