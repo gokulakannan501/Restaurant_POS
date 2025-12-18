@@ -92,6 +92,16 @@ const Billing = () => {
         }
     };
 
+    // Cleanup print overlay on unmount
+    useEffect(() => {
+        return () => {
+            const printOverlay = document.getElementById('print-overlay');
+            if (printOverlay) {
+                document.body.removeChild(printOverlay);
+            }
+        };
+    }, []);
+
     const handlePrint = () => {
         if (!selectedBill) return;
 
@@ -159,18 +169,37 @@ const Billing = () => {
 
         // Create or get the print overlay container
         let printOverlay = document.getElementById('print-overlay');
-        if (!printOverlay) {
-            printOverlay = document.createElement('div');
-            printOverlay.id = 'print-overlay';
-            document.body.appendChild(printOverlay);
+
+        // Always recreate/reset to ensure clean state
+        if (printOverlay) {
+            document.body.removeChild(printOverlay);
         }
+
+        printOverlay = document.createElement('div');
+        printOverlay.id = 'print-overlay';
+
+        // HIDE IT VISUALLY ON SCREEN IMMEDIATELY using inline styles for safety
+        // The @media SCSS handled this, but this is a backup against leakage
+        printOverlay.style.display = 'none';
+
+        document.body.appendChild(printOverlay);
 
         // Inject the clean HTML
         printOverlay.innerHTML = htmlContent;
 
         // Wait for DOM update then print
         setTimeout(() => {
+            // We need to make it display:block for printing, BUT relying on @media print is better
+            // However, to avoid flash, we keep it display:none on screen.
+            // Our @media print CSS sets display:block !important, which overrides inline styles if !important is used.
             window.print();
+
+            // Optional: Remove it after printing to be super safe (delayed)
+            setTimeout(() => {
+                if (document.body.contains(printOverlay)) {
+                    document.body.removeChild(printOverlay);
+                }
+            }, 500);
         }, 100);
     };
 
