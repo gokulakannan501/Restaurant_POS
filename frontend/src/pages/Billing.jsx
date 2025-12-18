@@ -147,15 +147,22 @@ const Billing = () => {
                         z-index: 9999 !important;
                     }
                     
-                    /* Ensure content inside overlay is visible */
+                    /* STRICTLY RESET COLORS for all content to black to avoid white-on-white */
                     #print-overlay * {
                         visibility: visible !important;
+                        color: black !important;
+                        background: transparent !important;
+                        background-color: transparent !important;
+                        box-shadow: none !important;
+                        text-shadow: none !important;
                     }
+                    
+                    /* Optional: Remove any dark mode classes if they are interfering (simulated by the wildcard above, but specifically resetting filtered elements if needed) */
 
                     /* Reset basic page styles for printing */
                     @page {
                         size: auto;
-                        margin: 0mm;
+                        margin: 5mm;
                     }
 
                     /* Receipt specific styling inside the overlay */
@@ -163,8 +170,7 @@ const Billing = () => {
                         max-width: none !important;
                         width: 100% !important; /* Full width of page/paper */
                         margin: 0 auto !important;
-                        padding: 10px !important;
-                        box-shadow: none !important;
+                        padding: 0 !important;
                         border: none !important;
                     }
                 }
