@@ -138,134 +138,76 @@ const Billing = () => {
         ` : '';
 
         const htmlContent = `
-            <div style="font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.4; color: black; background: white; width: 100%; max-width: 80mm; margin: 0 auto; padding: 10px;">
-                <div style="text-align: center; margin-bottom: 15px;">
-                    <h1 style="font-size: 18px; font-weight: bold; margin: 0 0 5px 0;">The Classic Restaurant</h1>
-                    <p style="margin: 0; font-size: 10px;">Andagalur Gate Flyover, Sakthinagar</p>
-                    <p style="margin: 0; font-size: 10px;">Rasipuram, Tamil Nadu 637401</p>
-                    <p style="margin: 0; font-size: 10px;">Ph: 6374038470, 8754346195</p>
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Bill #${selectedBill.billNumber}</title>
+            </head>
+            <body style="margin: 0; padding: 0; background: white;">
+                <div style="font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.4; color: black; background: white; width: 100%; max-width: 80mm; margin: 0 auto; padding: 10px;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <h1 style="font-size: 18px; font-weight: bold; margin: 0 0 5px 0;">The Classic Restaurant</h1>
+                        <p style="margin: 0; font-size: 10px;">Andagalur Gate Flyover, Sakthinagar</p>
+                        <p style="margin: 0; font-size: 10px;">Rasipuram, Tamil Nadu 637401</p>
+                        <p style="margin: 0; font-size: 10px;">Ph: 6374038470, 8754346195</p>
+                    </div>
+                    
+                    <div style="border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between;"><span>Date:</span><span>${billDate}</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span>Bill No:</span><span>${selectedBill.billNumber}</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span>Cashier:</span><span>${selectedBill.user?.name || 'Staff'}</span></div>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        ${itemsHtml}
+                    </div>
+                    
+                    <div style="border-top: 1px dashed #000; padding-top: 10px;">
+                        <div style="display: flex; justify-content: space-between;"><span>Subtotal</span><span>₹${selectedBill.subtotal}</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span>Tax</span><span>₹${selectedBill.taxAmount}</span></div>
+                        ${discountHtml}
+                        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px;"><span>Total</span><span>₹${selectedBill.totalAmount}</span></div>
+                    </div>
+                    
+                    ${paymentHtml}
                 </div>
-                
-                <div style="border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between;"><span>Date:</span><span>${billDate}</span></div>
-                    <div style="display: flex; justify-content: space-between;"><span>Bill No:</span><span>${selectedBill.billNumber}</span></div>
-                    <div style="display: flex; justify-content: space-between;"><span>Cashier:</span><span>${selectedBill.user?.name || 'Staff'}</span></div>
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    ${itemsHtml}
-                </div>
-                
-                <div style="border-top: 1px dashed #000; padding-top: 10px;">
-                    <div style="display: flex; justify-content: space-between;"><span>Subtotal</span><span>₹${selectedBill.subtotal}</span></div>
-                    <div style="display: flex; justify-content: space-between;"><span>Tax</span><span>₹${selectedBill.taxAmount}</span></div>
-                    ${discountHtml}
-                    <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px;"><span>Total</span><span>₹${selectedBill.totalAmount}</span></div>
-                </div>
-                
-                ${paymentHtml}
-            </div>
+                <script>
+                    window.onload = function() {
+                        setTimeout(() => {
+                            window.print();
+                            // Optional: Close window after print (some browsers block this, but worth a try)
+                            // window.close(); 
+                        }, 500);
+                    }
+                </script>
+            </body>
+            </html>
         `;
 
-        // Create or get the print overlay container
-        let printOverlay = document.getElementById('print-overlay');
+        // Open new window (Popup)
+        // This is the most reliable way to print specific content without CSS interference
+        const printWindow = window.open('', '_blank');
 
-        // Always recreate/reset to ensure clean state
-        if (printOverlay) {
-            document.body.removeChild(printOverlay);
+        if (!printWindow) {
+            toast.error('Please allow popups to print the bill');
+            return;
         }
 
-        printOverlay = document.createElement('div');
-        printOverlay.id = 'print-overlay';
-
-        // HIDE IT VISUALLY ON SCREEN IMMEDIATELY using inline styles for safety
-        // The @media SCSS handled this, but this is a backup against leakage
-        printOverlay.style.display = 'none';
-
-        document.body.appendChild(printOverlay);
-
-        // Inject the clean HTML
-        printOverlay.innerHTML = htmlContent;
-
-        // Wait for DOM update then print
-        setTimeout(() => {
-            // We need to make it display:block for printing, BUT relying on @media print is better
-            // However, to avoid flash, we keep it display:none on screen.
-            // Our @media print CSS sets display:block !important, which overrides inline styles if !important is used.
-            window.print();
-
-            // Optional: Remove it after printing to be super safe (delayed)
-            setTimeout(() => {
-                if (document.body.contains(printOverlay)) {
-                    document.body.removeChild(printOverlay);
-                }
-            }, 500);
-        }, 100);
+        try {
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            printWindow.focus();
+        } catch (e) {
+            console.error('Print failed', e);
+            toast.error('Printing failed. Please try again.');
+        }
     };
 
     return (
         <>
-            <style>{`
-                @media print {
-                    /* Hide root container and other top-level elements explicitly */
-                    #root, #main-content, header, footer, nav {
-                        display: none !important;
-                    }
+            {/* Styles removed as we are using a separate window for printing */}
 
-                    /* Hide all body children EXCEPT the print overlay */
-                    body > *:not(#print-overlay) {
-                        display: none !important;
-                    }
-                    
-                    /* Force styles on the print overlay */
-                    #print-overlay {
-                        visibility: visible !important;
-                        display: block !important;
-                        position: absolute !important;
-                        left: 0 !important;
-                        top: 0 !important;
-                        width: 100% !important;
-                        height: 100% !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        background: white !important;
-                        z-index: 9999 !important;
-                    }
-                    
-                    /* STRICTLY RESET COLORS for all content to black to avoid white-on-white */
-                    #print-overlay * {
-                        visibility: visible !important;
-                        color: black !important;
-                        background: transparent !important;
-                        background-color: transparent !important;
-                        box-shadow: none !important;
-                        text-shadow: none !important;
-                    }
-                    
-                    /* Optional: Remove any dark mode classes if they are interfering (simulated by the wildcard above, but specifically resetting filtered elements if needed) */
-
-                    /* Reset basic page styles for printing */
-                    @page {
-                        size: auto;
-                        margin: 5mm;
-                    }
-
-                    /* Receipt specific styling inside the overlay */
-                    #print-overlay .max-w-md {
-                        max-width: none !important;
-                        width: 100% !important; /* Full width of page/paper */
-                        margin: 0 auto !important;
-                        padding: 0 !important;
-                        border: none !important;
-                    }
-                }
-                
-                @media screen {
-                    #print-overlay {
-                        display: none;
-                    }
-                }
-            `}</style>
             <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-6rem)]">
                 {/* Sidebar List */}
                 <div className={`w-full lg:w-1/3 bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300 ${selectedBill ? 'hidden lg:flex' : 'flex'}`}>
