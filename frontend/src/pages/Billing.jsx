@@ -112,43 +112,44 @@ const Billing = () => {
         // Copy content
         printOverlay.innerHTML = receiptContent.innerHTML;
 
-        // Add specific class for styling scope if needed, or just rely on global tailwind
-        // We will use the same ID for the inner wrapper to maintain ID-based styles if any
-
-        // Trigger print
-        window.print();
-
-        // Cleanup after print (optional, but cleaner)
-        // setTimeout(() => {
-        //    printOverlay.innerHTML = '';
-        // }, 1000);
+        // Wait for DOM update then print
+        setTimeout(() => {
+            window.print();
+        }, 100); // 100ms delay to ensure DOM paint
     };
 
     return (
         <>
             <style>{`
                 @media print {
-                    /* Hide everything in the body by default */
-                    body > * {
+                    /* Hide root container and other top-level elements explicitly */
+                    #root, #main-content, header, footer, nav {
+                        display: none !important;
+                    }
+
+                    /* Hide all body children EXCEPT the print overlay */
+                    body > *:not(#print-overlay) {
                         display: none !important;
                     }
                     
-                    /* Show only the print overlay */
+                    /* Force styles on the print overlay */
                     #print-overlay {
+                        visibility: visible !important;
                         display: block !important;
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                        margin: 0;
-                        padding: 0;
+                        position: absolute !important;
+                        left: 0 !important;
+                        top: 0 !important;
+                        width: 100% !important;
+                        height: 100% !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        background: white !important;
+                        z-index: 9999 !important;
                     }
                     
-                    /* Ensure the overlay content is visible and formatted */
-                    #print-overlay > * {
+                    /* Ensure content inside overlay is visible */
+                    #print-overlay * {
                         visibility: visible !important;
-                        display: block !important; 
-                        width: 100%;
                     }
 
                     /* Reset basic page styles for printing */
@@ -159,8 +160,8 @@ const Billing = () => {
 
                     /* Receipt specific styling inside the overlay */
                     #print-overlay .max-w-md {
-                        max-width: none !important; /* Allow full width printing or let the printer handle custom width */
-                        width: 80mm !important;     /* Force standard thermal width or adjust as needed */
+                        max-width: none !important;
+                        width: 100% !important; /* Full width of page/paper */
                         margin: 0 auto !important;
                         padding: 10px !important;
                         box-shadow: none !important;
