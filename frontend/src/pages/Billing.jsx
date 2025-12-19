@@ -143,6 +143,11 @@ const Billing = () => {
             <head>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Bill #${selectedBill.billNumber}</title>
+                <style>
+                    body, div, p, span, h1, h2, h3, h4, h5, h6 {
+                        font-weight: bold !important;
+                    }
+                </style>
             </head>
             <body style="margin: 0; padding: 0; background: white;">
                 <div style="font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.4; color: black; background: white; width: 100%; max-width: 80mm; margin: 0 auto; padding: 10px;">
