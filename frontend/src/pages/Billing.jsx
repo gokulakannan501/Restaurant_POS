@@ -112,8 +112,8 @@ const Billing = () => {
             order.orderItems?.map(item => `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                     <div style="flex: 1; padding-right: 10px;">
-                        <div style="font-weight: bold;">${item.menuItem.name}</div>
-                        ${item.variant ? `<div style="font-size: 10px;">${item.variant.name}</div>` : ''}
+                        <div style="font-weight: bold; font-size: 16px;">${item.menuItem.name}</div>
+                        ${item.variant ? `<div style="font-size: 12px;">${item.variant.name}</div>` : ''}
                     </div>
                     <div style="text-align: right; white-space: nowrap;">
                         <span>${item.quantity} x ${item.price}</span>
@@ -131,7 +131,7 @@ const Billing = () => {
         ` : '';
 
         const paymentHtml = selectedBill.paymentStatus === 'COMPLETED' ? `
-            <div style="text-align: center; margin-top: 20px; font-size: 10px;">
+            <div style="text-align: center; margin-top: 20px; font-size: 12px;">
                 <span style="display: inline-block; padding: 3px 8px; border: 1px solid #000; border-radius: 10px; font-weight: bold;">PAID via ${selectedBill.paymentMode}</span>
                 <p style="margin-top: 5px;">Thank you for dining with us!</p>
             </div>
@@ -150,12 +150,12 @@ const Billing = () => {
                 </style>
             </head>
             <body style="margin: 0; padding: 0; background: white;">
-                <div style="font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.4; color: black; background: white; width: 100%; max-width: 80mm; margin: 0 auto; padding: 10px;">
+                <div style="font-family: 'Courier New', Courier, monospace; font-size: 14px; line-height: 1.4; color: black; background: white; width: 100%; max-width: 80mm; margin: 0 auto; padding: 10px;">
                     <div style="text-align: center; margin-bottom: 15px;">
-                        <h1 style="font-size: 18px; font-weight: bold; margin: 0 0 5px 0;">The Classic Restaurant</h1>
-                        <p style="margin: 0; font-size: 10px;">Andagalur Gate Flyover, Sakthinagar</p>
-                        <p style="margin: 0; font-size: 10px;">Rasipuram, Tamil Nadu 637401</p>
-                        <p style="margin: 0; font-size: 10px;">Ph: 6374038470, 8754346195</p>
+                        <h1 style="font-size: 20px; font-weight: bold; margin: 0 0 5px 0;">The Classic Restaurant</h1>
+                        <p style="margin: 0; font-size: 12px;">Andagalur Gate Flyover, Sakthinagar</p>
+                        <p style="margin: 0; font-size: 12px;">Rasipuram, Tamil Nadu 637401</p>
+                        <p style="margin: 0; font-size: 12px;">Ph: 6374038470, 8754346195</p>
                     </div>
                     
                     <div style="border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
@@ -172,7 +172,7 @@ const Billing = () => {
                         <div style="display: flex; justify-content: space-between;"><span>Subtotal</span><span>₹${selectedBill.subtotal}</span></div>
                         <div style="display: flex; justify-content: space-between;"><span>Tax</span><span>₹${selectedBill.taxAmount}</span></div>
                         ${discountHtml}
-                        <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px;"><span>Total</span><span>₹${selectedBill.totalAmount}</span></div>
+                        <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px;"><span>Total</span><span>₹${selectedBill.totalAmount}</span></div>
                     </div>
                     
                     ${paymentHtml}
