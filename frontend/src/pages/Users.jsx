@@ -36,6 +36,7 @@ const Users = () => {
         MANAGER: ['dashboard', 'tables', 'menu', 'orders', 'billing', 'inventory', 'reports', 'settings', 'attendance'],
         CASHIER: ['dashboard', 'tables', 'menu', 'orders', 'billing', 'attendance'],
         WAITER: ['dashboard', 'tables', 'menu', 'orders', 'attendance'],
+        KITCHEN: ['tables', 'menu', 'orders', 'attendance'],
     };
 
     useEffect(() => {
@@ -334,6 +335,7 @@ const Users = () => {
                                             <option value="MANAGER">Manager</option>
                                             <option value="CASHIER">Cashier</option>
                                             <option value="WAITER">Waiter</option>
+                                            <option value="KITCHEN">Kitchen Team</option>
                                         </select>
                                     </div>
 

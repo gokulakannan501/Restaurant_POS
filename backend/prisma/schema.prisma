@@ -17,7 +17,7 @@ model User {
   email        String   @unique
   mobile       String?  @unique
   password     String
-  role         String   @default("WAITER") // ADMIN, MANAGER, CASHIER, WAITER
+  role         String   @default("WAITER") // ADMIN, MANAGER, CASHIER, WAITER, KITCHEN
   permissions  String?  // JSON string of allowed pages/features
   isActive     Boolean  @default(true)
   isDeleted    Boolean  @default(false)

@@ -13,7 +13,7 @@ export const createUserSchema = z.object({
         email: z.string().email('Invalid email address'),
         mobile: z.string().optional(),
         password: z.string().min(6, 'Password must be at least 6 characters'),
-        role: z.enum(['ADMIN', 'MANAGER', 'CASHIER', 'WAITER']),
+        role: z.enum(['ADMIN', 'MANAGER', 'CASHIER', 'WAITER', 'KITCHEN']),
         permissions: z.array(z.string()).optional(),
     }),
 });
@@ -24,7 +24,7 @@ export const updateUserSchema = z.object({
         email: z.string().email().optional(),
         mobile: z.string().optional(),
         password: z.string().min(6).optional(),
-        role: z.enum(['ADMIN', 'MANAGER', 'CASHIER', 'WAITER']).optional(),
+        role: z.enum(['ADMIN', 'MANAGER', 'CASHIER', 'WAITER', 'KITCHEN']).optional(),
         permissions: z.array(z.string()).optional(),
         isActive: z.boolean().optional(),
     }),
