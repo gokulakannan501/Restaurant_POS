@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
+import EditOrderModal from '../components/EditOrderModal';
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
@@ -14,6 +15,8 @@ const Orders = () => {
         endDate: new Date().toISOString().split('T')[0]
     });
     const [highlightedId, setHighlightedId] = useState(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [selectedOrderForEdit, setSelectedOrderForEdit] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -408,8 +411,17 @@ const Orders = () => {
                                             Cancel
                                         </button>
                                         <button
+                                            onClick={() => {
+                                                setSelectedOrderForEdit(order);
+                                                setEditModalOpen(true);
+                                            }}
+                                            className="bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 py-1 text-sm rounded transition-colors"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
                                             onClick={() => handleStatusUpdate(order.id, 'PREPARING')}
-                                            className="bg-primary-600 text-white hover:bg-primary-700 py-1 text-sm rounded transition-colors shadow-sm"
+                                            className="bg-primary-600 text-white hover:bg-primary-700 py-1 text-sm col-span-2 rounded transition-colors shadow-sm"
                                         >
                                             Accept
                                         </button>
@@ -450,6 +462,15 @@ const Orders = () => {
                     </div>
                 ))}
             </div>
+            <EditOrderModal
+                isOpen={editModalOpen}
+                order={selectedOrderForEdit}
+                onClose={() => {
+                    setEditModalOpen(false);
+                    setSelectedOrderForEdit(null);
+                }}
+                onUpdate={fetchOrders}
+            />
         </div>
     );
 };

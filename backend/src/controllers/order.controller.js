@@ -321,3 +321,61 @@ export const deleteOrderItem = async (req, res) => {
         message: 'Item removed from order'
     });
 };
+
+export const updateOrderItem = async (req, res) => {
+    const { orderId, itemId } = req.params;
+    const { quantity } = req.body;
+
+    if (!quantity || quantity < 1) {
+        return res.status(400).json({
+            success: false,
+            message: 'Valid quantity is required'
+        });
+    }
+
+    const order = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: { bill: true }
+    });
+
+    if (!order) {
+        return res.status(404).json({
+            success: false,
+            message: 'Order not found'
+        });
+    }
+
+    if (order.bill) {
+        return res.status(400).json({
+            success: false,
+            message: 'Cannot edit items in a billed order'
+        });
+    }
+
+    if (order.status === 'COMPLETED' || order.status === 'CANCELLED') {
+        return res.status(400).json({
+            success: false,
+            message: 'Cannot edit items in a completed or cancelled order'
+        });
+    }
+
+    const updatedItem = await prisma.orderItem.update({
+        where: {
+            id: itemId,
+            orderId: orderId
+        },
+        data: {
+            quantity: parseInt(quantity)
+        },
+        include: {
+            menuItem: true,
+            variant: true
+        }
+    });
+
+    res.json({
+        success: true,
+        data: updatedItem,
+        message: 'Order item updated'
+    });
+};
