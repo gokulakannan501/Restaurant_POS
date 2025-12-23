@@ -193,6 +193,19 @@ const Orders = () => {
         }
     };
 
+    const handleRemoveItem = async (orderId, itemId) => {
+        if (!window.confirm('Are you sure you want to remove this item?')) return;
+
+        try {
+            await api.delete(`/orders/${orderId}/items/${itemId}`);
+            toast.success('Item removed');
+            fetchOrders();
+        } catch (error) {
+            console.error('Error removing item:', error);
+            toast.error(error.response?.data?.message || 'Failed to remove item');
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -334,16 +347,29 @@ const Orders = () => {
                         <div className="p-4 flex-1 overflow-y-auto max-h-64 custom-scrollbar">
                             <ul className="space-y-3">
                                 {order.orderItems.map((item) => (
-                                    <li key={item.id} className="flex justify-between text-sm">
-                                        <div className="flex space-x-2">
+                                    <li key={item.id} className="flex justify-between items-start text-sm group">
+                                        <div className="flex space-x-2 flex-1">
                                             <span className="font-bold text-gray-900 dark:text-white">{item.quantity}x</span>
-                                            <span className="text-gray-700 dark:text-gray-300">
-                                                {item.menuItem.name}
-                                                {item.variant && <span className="text-gray-500 dark:text-gray-400"> ({item.variant.name})</span>}
-                                            </span>
+                                            <div className="flex flex-col">
+                                                <span className="text-gray-700 dark:text-gray-300">
+                                                    {item.menuItem.name}
+                                                    {item.variant && <span className="text-gray-500 dark:text-gray-400"> ({item.variant.name})</span>}
+                                                </span>
+                                                {item.notes && (
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 italic">{item.notes}</p>
+                                                )}
+                                            </div>
                                         </div>
-                                        {item.notes && (
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 ml-6 mt-0.5 italic">{item.notes}</p>
+                                        {!order.billId && !['COMPLETED', 'CANCELLED'].includes(order.status) && (
+                                            <button
+                                                onClick={() => handleRemoveItem(order.id, item.id)}
+                                                className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                                                title="Remove Item"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
                                         )}
                                     </li>
                                 ))}

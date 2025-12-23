@@ -5,7 +5,9 @@ import {
     createOrder,
     updateOrder,
     updateOrderStatus,
+    updateOrderStatus,
     deleteOrder,
+    deleteOrderItem,
 } from '../controllers/order.controller.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -19,5 +21,6 @@ router.post('/', authenticate, validate(createOrderSchema), createOrder);
 router.put('/:id', authenticate, validate(updateOrderSchema), updateOrder);
 router.patch('/:id/status', authenticate, validate(updateOrderStatusSchema), updateOrderStatus);
 router.delete('/:id', authenticate, authorize('ADMIN', 'MANAGER'), deleteOrder);
+router.delete('/:orderId/items/:itemId', authenticate, deleteOrderItem);
 
 export default router;

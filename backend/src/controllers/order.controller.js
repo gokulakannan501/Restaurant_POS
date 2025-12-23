@@ -279,3 +279,45 @@ export const deleteOrder = async (req, res) => {
         message: 'Order deleted successfully',
     });
 };
+
+export const deleteOrderItem = async (req, res) => {
+    const { orderId, itemId } = req.params;
+
+    const order = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: { bill: true }
+    });
+
+    if (!order) {
+        return res.status(404).json({
+            success: false,
+            message: 'Order not found'
+        });
+    }
+
+    if (order.bill) {
+        return res.status(400).json({
+            success: false,
+            message: 'Cannot delete items from a billed order'
+        });
+    }
+
+    if (order.status === 'COMPLETED' || order.status === 'CANCELLED') {
+        return res.status(400).json({
+            success: false,
+            message: 'Cannot delete items from a completed or cancelled order'
+        });
+    }
+
+    await prisma.orderItem.delete({
+        where: {
+            id: itemId,
+            orderId: orderId // Ensure item belongs to this order
+        }
+    });
+
+    res.json({
+        success: true,
+        message: 'Item removed from order'
+    });
+};
