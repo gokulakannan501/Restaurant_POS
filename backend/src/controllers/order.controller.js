@@ -316,6 +316,31 @@ export const deleteOrderItem = async (req, res) => {
         }
     });
 
+    // Check if order is empty
+    const remainingCount = await prisma.orderItem.count({
+        where: { orderId }
+    });
+
+    if (remainingCount === 0) {
+        // Cancel the order and free the table
+        await prisma.order.update({
+            where: { id: orderId },
+            data: { status: 'CANCELLED' }
+        });
+
+        if (order.tableId) {
+            await prisma.table.update({
+                where: { id: order.tableId },
+                data: { status: 'AVAILABLE' }
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: 'Item removed and empty order cancelled'
+        });
+    }
+
     res.json({
         success: true,
         message: 'Item removed from order'
