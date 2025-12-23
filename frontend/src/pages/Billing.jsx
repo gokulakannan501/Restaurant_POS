@@ -461,12 +461,21 @@ const Billing = () => {
                             {selectedBill.paymentStatus === 'PENDING' && (
                                 <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                                     <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wider">Select Payment Mode</h3>
-                                    <div className="grid grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                        {['CASH', 'CARD', 'UPI', 'WALLET'].map((mode) => (
+                                            <button
+                                                key={mode}
+                                                onClick={() => handlePayment(selectedBill.id, mode)}
+                                                disabled={processingPayment}
+                                                className="flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all shadow-sm group"
+                                            >
+                                                <span className="font-bold text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">{mode}</span>
+                                            </button>
                                         ))}
                                         <button
                                             onClick={() => handlePayment(selectedBill.id, 'CASH_UPI')}
                                             disabled={processingPayment}
-                                            className="col-span-4 sm:col-span-2 flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all shadow-sm group"
+                                            className="col-span-2 sm:col-span-4 flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all shadow-sm group"
                                         >
                                             <span className="font-bold text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">CASH + UPI</span>
                                         </button>
