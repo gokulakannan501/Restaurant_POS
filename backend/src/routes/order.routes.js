@@ -5,7 +5,6 @@ import {
     createOrder,
     updateOrder,
     updateOrderStatus,
-    updateOrderStatus,
     deleteOrder,
     deleteOrderItem,
 } from '../controllers/order.controller.js';
