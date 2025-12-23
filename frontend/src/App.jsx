@@ -33,6 +33,7 @@ function App() {
         if (!user) return '/';
         if (user.role === 'WAITER') return '/tables';
         if (user.role === 'CASHIER') return '/billing';
+        if (user.role === 'KITCHEN') return '/orders';
         return '/';
     };
 
@@ -48,67 +49,67 @@ function App() {
                 {/* Protected Routes */}
                 <Route element={<Layout />}>
                     <Route path="/" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} requiredPermission="dashboard">
                             <Dashboard />
                         </ProtectedRoute>
                     } />
 
                     <Route path="/profile" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER', 'KITCHEN']}>
                             <Profile />
                         </ProtectedRoute>
                     } />
 
                     <Route path="/users" element={
-                        <ProtectedRoute allowedRoles={['ADMIN']}>
+                        <ProtectedRoute allowedRoles={['ADMIN']} requiredPermission="users">
                             <Users />
                         </ProtectedRoute>
                     } />
 
                     <Route path="/tables" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER', 'KITCHEN']} requiredPermission="tables">
                             <Tables />
                         </ProtectedRoute>
                     } />
 
                     <Route path="/menu" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER', 'KITCHEN']} requiredPermission="menu">
                             <Menu />
                         </ProtectedRoute>
                     } />
 
                     <Route path="/orders" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER', 'KITCHEN']} requiredPermission="orders">
                             <Orders />
                         </ProtectedRoute>
                     } />
 
                     <Route path="/orders/new" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER', 'WAITER', 'KITCHEN']} requiredPermission="orders">
                             <Cart />
                         </ProtectedRoute>
                     } />
 
                     <Route path="/billing" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'CASHIER']} requiredPermission="billing">
                             <Billing />
                         </ProtectedRoute>
                     } />
 
                     <Route path="/inventory" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} requiredPermission="inventory">
                             <Inventory />
                         </ProtectedRoute>
                     } />
 
                     <Route path="/reports" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} requiredPermission="reports">
                             <Reports />
                         </ProtectedRoute>
                     } />
 
                     <Route path="/settings" element={
-                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}>
+                        <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} requiredPermission="settings">
                             <Settings />
                         </ProtectedRoute>
                     } />
