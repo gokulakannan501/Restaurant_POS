@@ -218,12 +218,40 @@ export const getBillById = async (req, res) => {
 
 export const processPayment = async (req, res) => {
     const { id } = req.params;
-    const { paymentMode } = req.body;
+    const { paymentMode, paymentDetails } = req.body;
+
+    // Validate split payment
+    if (paymentMode === 'CASH_UPI') {
+        if (!paymentDetails) {
+            return res.status(400).json({
+                success: false,
+                message: 'Payment details required for split payment',
+            });
+        }
+
+        // Find the bill to check total
+        const currentBill = await prisma.bill.findUnique({ where: { id } });
+        if (!currentBill) {
+            return res.status(404).json({ success: false, message: 'Bill not found' });
+        }
+
+        const details = typeof paymentDetails === 'string' ? JSON.parse(paymentDetails) : paymentDetails;
+        const totalPaid = (details.cash || 0) + (details.upi || 0);
+
+        // Allow for tiny floating point differences
+        if (Math.abs(totalPaid - currentBill.totalAmount) > 0.01) {
+            return res.status(400).json({
+                success: false,
+                message: `Payment amount mismatch. Total: ${currentBill.totalAmount}, Paid: ${totalPaid}`,
+            });
+        }
+    }
 
     const bill = await prisma.bill.update({
         where: { id },
         data: {
             paymentMode,
+            paymentDetails: paymentDetails ? (typeof paymentDetails === 'string' ? paymentDetails : JSON.stringify(paymentDetails)) : null,
             paymentStatus: 'COMPLETED',
             paidAt: new Date(),
         },

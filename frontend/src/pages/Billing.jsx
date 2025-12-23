@@ -10,6 +10,8 @@ const Billing = () => {
     const [selectedBill, setSelectedBill] = useState(null);
     const [loading, setLoading] = useState(true);
     const [processingPayment, setProcessingPayment] = useState(false);
+    const [splitPaymentModal, setSplitPaymentModal] = useState(false);
+    const [splitAmounts, setSplitAmounts] = useState({ cash: '', upi: '' });
 
     const [dateRange, setDateRange] = useState(() => {
         const today = new Date();
@@ -78,17 +80,58 @@ const Billing = () => {
     };
 
     const handlePayment = async (billId, paymentMode) => {
+        if (paymentMode === 'CASH_UPI') {
+            setSplitPaymentModal(true);
+            return;
+        }
+        await processPaymentTransaction(billId, paymentMode);
+    };
+
+    const processPaymentTransaction = async (billId, paymentMode, details = null) => {
         setProcessingPayment(true);
         try {
-            await api.post(`/billing/${billId}/payment`, { paymentMode });
+            await api.post(`/billing/${billId}/payment`, {
+                paymentMode,
+                paymentDetails: details
+            });
             toast.success('Payment processed successfully');
             setSelectedBill(null);
+            setSplitPaymentModal(false);
+            setSplitAmounts({ cash: '', upi: '' });
             fetchBills();
         } catch (error) {
             console.error('Error processing payment:', error);
-            toast.error('Failed to process payment');
+            const msg = error.response?.data?.message || 'Failed to process payment';
+            toast.error(msg);
         } finally {
             setProcessingPayment(false);
+        }
+    };
+
+    const handleSplitPaymentSubmit = (e) => {
+        e.preventDefault();
+        const cashObj = parseFloat(splitAmounts.cash) || 0;
+        const upiObj = parseFloat(splitAmounts.upi) || 0;
+        const total = cashObj + upiObj;
+
+        // Allow tiny difference for floating point
+        if (Math.abs(total - selectedBill.totalAmount) > 0.01) {
+            toast.error(`Total amount mismatch. entered: ${total}, required: ${selectedBill.totalAmount}`);
+            return;
+        }
+
+        processPaymentTransaction(selectedBill.id, 'CASH_UPI', { cash: cashObj, upi: upiObj });
+    };
+
+    const handleSplitAmountChange = (type, value) => {
+        const val = value;
+
+        if (type === 'cash') {
+            const cashVal = parseFloat(val) || 0;
+            const remaining = Math.max(0, selectedBill.totalAmount - cashVal);
+            setSplitAmounts({ cash: val, upi: remaining.toFixed(2) });
+        } else {
+            setSplitAmounts({ ...splitAmounts, upi: val });
         }
     };
 
@@ -130,24 +173,37 @@ const Billing = () => {
             </div>
         ` : '';
 
+        // Helper to format payment mode display
+
+
+        const getPaymentModeDisplay = () => {
+            if (selectedBill.paymentMode === 'CASH_UPI' && selectedBill.paymentDetails) {
+                try {
+                    const details = JSON.parse(selectedBill.paymentDetails);
+                    return `PAID via CASH (₹${details.cash}) + UPI (₹${details.upi})`;
+                } catch (e) { return 'PAID via CASH + UPI'; }
+            }
+            return `PAID via ${selectedBill.paymentMode}`;
+        };
+
         const paymentHtml = selectedBill.paymentStatus === 'COMPLETED' ? `
-            <div style="text-align: center; margin-top: 20px; font-size: 12px;">
-                <span style="display: inline-block; padding: 3px 8px; border: 1px solid #000; border-radius: 10px; font-weight: bold;">PAID via ${selectedBill.paymentMode}</span>
+            < div style = "text-align: center; margin-top: 20px; font-size: 12px;" >
+                <span style="display: inline-block; padding: 3px 8px; border: 1px solid #000; border-radius: 10px; font-weight: bold;">${getPaymentModeDisplay()}</span>
                 <p style="margin-top: 5px;">Thank you for dining with us!</p>
-            </div>
-        ` : '';
+            </div >
+    ` : '';
 
         const htmlContent = `
-            <!DOCTYPE html>
-            <html>
+    < !DOCTYPE html >
+        <html>
             <head>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Bill #${selectedBill.billNumber}</title>
-                <style>
-                    body, div, p, span, h1, h2, h3, h4, h5, h6 {
-                        font-weight: bold !important;
+                    <title>Bill #${selectedBill.billNumber}</title>
+                    <style>
+                        body, div, p, span, h1, h2, h3, h4, h5, h6 {
+                            font - weight: bold !important;
                     }
-                </style>
+                    </style>
             </head>
             <body style="margin: 0; padding: 0; background: white;">
                 <div style="font-family: 'Courier New', Courier, monospace; font-size: 14px; line-height: 1.4; color: black; background: white; width: 100%; max-width: 80mm; margin: 0 auto; padding: 10px;">
@@ -157,24 +213,24 @@ const Billing = () => {
                         <p style="margin: 0; font-size: 12px;">Rasipuram, Tamil Nadu 637401</p>
                         <p style="margin: 0; font-size: 12px;">Ph: 6374038470, 8754346195</p>
                     </div>
-                    
+
                     <div style="border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
                         <div style="display: flex; justify-content: space-between;"><span>Date:</span><span>${billDate}</span></div>
                         <div style="display: flex; justify-content: space-between;"><span>Bill No:</span><span>${selectedBill.billNumber}</span></div>
                         <div style="display: flex; justify-content: space-between;"><span>Cashier:</span><span>${selectedBill.user?.name || 'Staff'}</span></div>
                     </div>
-                    
+
                     <div style="margin-bottom: 15px;">
                         ${itemsHtml}
                     </div>
-                    
+
                     <div style="border-top: 1px dashed #000; padding-top: 10px;">
                         <div style="display: flex; justify-content: space-between;"><span>Subtotal</span><span>₹${selectedBill.subtotal}</span></div>
                         <div style="display: flex; justify-content: space-between;"><span>Tax</span><span>₹${selectedBill.taxAmount}</span></div>
                         ${discountHtml}
                         <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px; border-top: 1px solid #000; padding-top: 5px;"><span>Total</span><span>₹${selectedBill.totalAmount}</span></div>
                     </div>
-                    
+
                     ${paymentHtml}
                 </div>
                 <script>
@@ -187,8 +243,8 @@ const Billing = () => {
                     }
                 </script>
             </body>
-            </html>
-        `;
+        </html>
+`;
 
         // Open new window (Popup)
         // This is the most reliable way to print specific content without CSS interference
@@ -215,7 +271,7 @@ const Billing = () => {
 
             <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-6rem)]">
                 {/* Sidebar List */}
-                <div className={`w-full lg:w-1/3 bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300 ${selectedBill ? 'hidden lg:flex' : 'flex'}`}>
+                <div className={`w - full lg: w - 1 / 3 bg - white dark: bg - dark - surface bg - opacity - 70 backdrop - blur - md rounded - xl shadow - lg border border - gray - 100 dark: border - gray - 700 flex flex - col overflow - hidden transition - all duration - 300 ${selectedBill ? 'hidden lg:flex' : 'flex'} `}>
                     <div className="p-4 border-b border-gray-100 dark:border-gray-700">
                         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Bills</h2>
 
@@ -238,19 +294,19 @@ const Billing = () => {
                         <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
                             <button
                                 onClick={() => setActiveTab('UNPAID')}
-                                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === 'UNPAID'
+                                className={`flex - 1 py - 2 text - sm font - medium rounded - md transition - all duration - 200 ${activeTab === 'UNPAID'
                                     ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
                                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                                    }`}
+                                    } `}
                             >
                                 Pending
                             </button>
                             <button
                                 onClick={() => setActiveTab('PAID')}
-                                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === 'PAID'
+                                className={`flex - 1 py - 2 text - sm font - medium rounded - md transition - all duration - 200 ${activeTab === 'PAID'
                                     ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
                                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                                    }`}
+                                    } `}
                             >
                                 History
                             </button>
@@ -271,10 +327,10 @@ const Billing = () => {
                                 <button
                                     key={bill.id}
                                     onClick={() => setSelectedBill(bill)}
-                                    className={`w-full text-left p-4 rounded-lg border transition-all ${selectedBill?.id === bill.id
+                                    className={`w - full text - left p - 4 rounded - lg border transition - all ${selectedBill?.id === bill.id
                                         ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800 ring-1 ring-primary-200 dark:ring-primary-800'
                                         : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
-                                        }`}
+                                        } `}
                                 >
                                     <div className="flex justify-between items-start mb-1">
                                         <span className="font-bold text-gray-900 dark:text-white">#{bill.billNumber.slice(-6)}</span>
@@ -296,7 +352,7 @@ const Billing = () => {
                 </div>
 
                 {/* Bill Details / Receipt */}
-                <div className={`w-full lg:w-2/3 bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300 ${selectedBill ? 'flex' : 'hidden lg:flex'}`}>
+                <div className={`w - full lg: w - 2 / 3 bg - white dark: bg - dark - surface bg - opacity - 70 backdrop - blur - md rounded - xl shadow - lg border border - gray - 100 dark: border - gray - 700 flex flex - col overflow - hidden transition - all duration - 300 ${selectedBill ? 'flex' : 'hidden lg:flex'} `}>
                     {selectedBill ? (
                         <div className="flex-1 flex flex-col h-full">
                             <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">
@@ -388,8 +444,14 @@ const Billing = () => {
                                     {selectedBill.paymentStatus === 'COMPLETED' && (
                                         <div className="mt-6 text-center">
                                             <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-bold border border-green-200">
-                                                PAID via {selectedBill.paymentMode}
+                                                PAID via {selectedBill.paymentMode === 'CASH_UPI' ? 'CASH + UPI' : selectedBill.paymentMode}
                                             </span>
+                                            {selectedBill.paymentMode === 'CASH_UPI' && selectedBill.paymentDetails && (() => {
+                                                try {
+                                                    const d = JSON.parse(selectedBill.paymentDetails);
+                                                    return <p className="text-xs text-gray-500 mt-1">Cash: ₹{d.cash} | UPI: ₹{d.upi}</p>;
+                                                } catch (e) { return null; }
+                                            })()}
                                             <p className="text-xs text-gray-500 mt-2">Thank you for dining with us!</p>
                                         </div>
                                     )}
@@ -400,16 +462,14 @@ const Billing = () => {
                                 <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                                     <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wider">Select Payment Mode</h3>
                                     <div className="grid grid-cols-4 gap-4">
-                                        {['CASH', 'CARD', 'UPI', 'WALLET'].map((mode) => (
-                                            <button
-                                                key={mode}
-                                                onClick={() => handlePayment(selectedBill.id, mode)}
-                                                disabled={processingPayment}
-                                                className="flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all shadow-sm group"
-                                            >
-                                                <span className="font-bold text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">{mode}</span>
-                                            </button>
                                         ))}
+                                        <button
+                                            onClick={() => handlePayment(selectedBill.id, 'CASH_UPI')}
+                                            disabled={processingPayment}
+                                            className="col-span-4 sm:col-span-2 flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all shadow-sm group"
+                                        >
+                                            <span className="font-bold text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">CASH + UPI</span>
+                                        </button>
                                     </div>
                                 </div>
                             )}
@@ -424,6 +484,68 @@ const Billing = () => {
                     )}
                 </div>
             </div>
+
+            {/* Split Payment Modal */}
+            {splitPaymentModal && (
+                <div className="fixed inset-0 z-50 overflow-y-auto">
+                    <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={() => setSplitPaymentModal(false)} />
+
+                        <div className="relative transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-200 dark:border-gray-700">
+                            <div className="p-6">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Split Payment (Cash + UPI)</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                                    Total Amount to Pay: <span className="font-bold text-gray-900 dark:text-white">₹{selectedBill?.totalAmount}</span>
+                                </p>
+
+                                <form onSubmit={handleSplitPaymentSubmit} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cash Amount</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={splitAmounts.cash}
+                                            onChange={(e) => handleSplitAmountChange('cash', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                                            placeholder="Enter cash amount"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">UPI Amount</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={splitAmounts.upi}
+                                            onChange={(e) => handleSplitAmountChange('upi', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                                            placeholder="Enter UPI amount"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="pt-4 flex space-x-3">
+                                        <button
+                                            type="submit"
+                                            disabled={processingPayment}
+                                            className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg font-medium transition-colors"
+                                        >
+                                            {processingPayment ? 'Processing...' : 'Confirm Payment'}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSplitPaymentModal(false)}
+                                            disabled={processingPayment}
+                                            className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-2 rounded-lg font-medium transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

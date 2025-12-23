@@ -51,9 +51,21 @@ export const getDailySalesReport = async (req, res) => {
     const totalDiscount = bills.reduce((sum, bill) => sum + bill.discount, 0);
 
     // Payment mode breakdown
+    // Payment mode breakdown - handling split payments
     const paymentModes = bills.reduce((acc, bill) => {
-        const mode = bill.paymentMode || 'UNKNOWN';
-        acc[mode] = (acc[mode] || 0) + bill.totalAmount;
+        if (bill.paymentMode === 'CASH_UPI' && bill.paymentDetails) {
+            try {
+                const details = JSON.parse(bill.paymentDetails);
+                acc['CASH'] = (acc['CASH'] || 0) + (details.cash || 0);
+                acc['UPI'] = (acc['UPI'] || 0) + (details.upi || 0);
+            } catch (e) {
+                // Fallback if parsing fails
+                acc['CASH_UPI'] = (acc['CASH_UPI'] || 0) + bill.totalAmount;
+            }
+        } else {
+            const mode = bill.paymentMode || 'UNKNOWN';
+            acc[mode] = (acc[mode] || 0) + bill.totalAmount;
+        }
         return acc;
     }, {});
 
@@ -169,20 +181,49 @@ export const getPaymentModeReport = async (req, res) => {
         select: {
             paymentMode: true,
             totalAmount: true,
+            paymentDetails: true,
         },
     });
 
     const paymentModes = bills.reduce((acc, bill) => {
-        const mode = bill.paymentMode || 'UNKNOWN';
-        if (!acc[mode]) {
-            acc[mode] = {
-                mode,
-                count: 0,
-                total: 0,
-            };
+        if (bill.paymentMode === 'CASH_UPI' && bill.paymentDetails) {
+            try {
+                const details = JSON.parse(bill.paymentDetails);
+
+                // Add to Cash
+                if (!acc['CASH']) acc['CASH'] = { mode: 'CASH', count: 0, total: 0 };
+                // We count split transaction as 0.5 or 1? Or just don't increment count? 
+                // Usually count represents # of transactions. A split is 1 transaction where both modes are used.
+                // Let's increment count for both to show usage, or maybe just total. 
+                // Simpler: increment count for "CASH_UPI" bucket if we want, but here we want to merge.
+                // Let's increment count for both but remember it might inflate transaction count. 
+                // For simplicity, let's just add amounts to CASH and UPI buckets.
+                acc['CASH'].total += (details.cash || 0);
+                acc['CASH'].count += 1; // It counts as a cash usage
+
+                // Add to UPI
+                if (!acc['UPI']) acc['UPI'] = { mode: 'UPI', count: 0, total: 0 };
+                acc['UPI'].total += (details.upi || 0);
+                acc['UPI'].count += 1; // It counts as a UPI usage
+
+            } catch (e) {
+                const mode = 'CASH_UPI';
+                if (!acc[mode]) acc[mode] = { mode, count: 0, total: 0 };
+                acc[mode].count += 1;
+                acc[mode].total += bill.totalAmount;
+            }
+        } else {
+            const mode = bill.paymentMode || 'UNKNOWN';
+            if (!acc[mode]) {
+                acc[mode] = {
+                    mode,
+                    count: 0,
+                    total: 0,
+                };
+            }
+            acc[mode].count += 1;
+            acc[mode].total += bill.totalAmount;
         }
-        acc[mode].count += 1;
-        acc[mode].total += bill.totalAmount;
         return acc;
     }, {});
 

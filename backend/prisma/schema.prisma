@@ -151,6 +151,7 @@ model Bill {
   totalAmount   Float
   paymentMode   String? // CASH, CARD, UPI, WALLET
   paymentStatus String   @default("PENDING") // PENDING, COMPLETED, FAILED, REFUNDED
+  paymentDetails String?  // JSON string for split payments
   paidAt        DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
