@@ -187,21 +187,21 @@ const Billing = () => {
         };
 
         const paymentHtml = selectedBill.paymentStatus === 'COMPLETED' ? `
-            < div style = "text-align: center; margin-top: 20px; font-size: 12px;" >
+            <div style="text-align: center; margin-top: 20px; font-size: 12px;">
                 <span style="display: inline-block; padding: 3px 8px; border: 1px solid #000; border-radius: 10px; font-weight: bold;">${getPaymentModeDisplay()}</span>
                 <p style="margin-top: 5px;">Thank you for dining with us!</p>
-            </div >
-    ` : '';
+            </div>
+        ` : '';
 
         const htmlContent = `
-    < !DOCTYPE html >
+    <!DOCTYPE html>
         <html>
             <head>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Bill #${selectedBill.billNumber}</title>
                     <style>
                         body, div, p, span, h1, h2, h3, h4, h5, h6 {
-                            font - weight: bold !important;
+                            font-weight: bold !important;
                     }
                     </style>
             </head>
@@ -271,7 +271,7 @@ const Billing = () => {
 
             <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-6rem)]">
                 {/* Sidebar List */}
-                <div className={`w - full lg: w - 1 / 3 bg - white dark: bg - dark - surface bg - opacity - 70 backdrop - blur - md rounded - xl shadow - lg border border - gray - 100 dark: border - gray - 700 flex flex - col overflow - hidden transition - all duration - 300 ${selectedBill ? 'hidden lg:flex' : 'flex'} `}>
+                <div className={`w-full lg:w-1/3 bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300 ${selectedBill ? 'hidden lg:flex' : 'flex'}`}>
                     <div className="p-4 border-b border-gray-100 dark:border-gray-700">
                         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Bills</h2>
 
@@ -294,19 +294,19 @@ const Billing = () => {
                         <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
                             <button
                                 onClick={() => setActiveTab('UNPAID')}
-                                className={`flex - 1 py - 2 text - sm font - medium rounded - md transition - all duration - 200 ${activeTab === 'UNPAID'
+                                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === 'UNPAID'
                                     ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
                                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                                    } `}
+                                    }`}
                             >
                                 Pending
                             </button>
                             <button
                                 onClick={() => setActiveTab('PAID')}
-                                className={`flex - 1 py - 2 text - sm font - medium rounded - md transition - all duration - 200 ${activeTab === 'PAID'
+                                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all duration-200 ${activeTab === 'PAID'
                                     ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
                                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                                    } `}
+                                    }`}
                             >
                                 History
                             </button>
@@ -327,10 +327,10 @@ const Billing = () => {
                                 <button
                                     key={bill.id}
                                     onClick={() => setSelectedBill(bill)}
-                                    className={`w - full text - left p - 4 rounded - lg border transition - all ${selectedBill?.id === bill.id
+                                    className={`w-full text-left p-4 rounded-lg border transition-all ${selectedBill?.id === bill.id
                                         ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800 ring-1 ring-primary-200 dark:ring-primary-800'
                                         : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
-                                        } `}
+                                        }`}
                                 >
                                     <div className="flex justify-between items-start mb-1">
                                         <span className="font-bold text-gray-900 dark:text-white">#{bill.billNumber.slice(-6)}</span>
@@ -352,7 +352,7 @@ const Billing = () => {
                 </div>
 
                 {/* Bill Details / Receipt */}
-                <div className={`w - full lg: w - 2 / 3 bg - white dark: bg - dark - surface bg - opacity - 70 backdrop - blur - md rounded - xl shadow - lg border border - gray - 100 dark: border - gray - 700 flex flex - col overflow - hidden transition - all duration - 300 ${selectedBill ? 'flex' : 'hidden lg:flex'} `}>
+                <div className={`w-full lg:w-2/3 bg-white dark:bg-dark-surface bg-opacity-70 backdrop-blur-md rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-all duration-300 ${selectedBill ? 'flex' : 'hidden lg:flex'}`}>
                     {selectedBill ? (
                         <div className="flex-1 flex flex-col h-full">
                             <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">
