@@ -41,7 +41,7 @@ export const markAttendance = async (req, res) => {
             where: { id: existingRecord.id },
             data: {
                 status,
-                notes: notes || existingRecord.notes,
+                notes: notes !== undefined ? notes : existingRecord.notes,
             },
         });
     } else {
