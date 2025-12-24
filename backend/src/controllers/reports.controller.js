@@ -286,7 +286,16 @@ export const exportReportToCSV = async (req, res) => {
             const orderType = bill.orders[0]?.type || 'N/A';
             const customerName = bill.orders[0]?.customerName || 'N/A';
             const customerPhone = bill.orders[0]?.customerPhone || 'N/A';
-            csvData += `${bill.billNumber},"${orderNumbers}",${orderType},"${customerName}","${customerPhone}",${bill.subtotal},${bill.taxAmount},${bill.discount},${bill.totalAmount},${bill.paymentMode},${bill.createdAt.toISOString()}\n`;
+            let paymentModeDisplay = bill.paymentMode;
+            if (bill.paymentMode === 'CASH_UPI' && bill.paymentDetails) {
+                try {
+                    const d = JSON.parse(bill.paymentDetails);
+                    paymentModeDisplay = `CASH (${d.cash}) + UPI (${d.upi})`;
+                } catch (e) {
+                    paymentModeDisplay = 'CASH + UPI';
+                }
+            }
+            csvData += `${bill.billNumber},"${orderNumbers}",${orderType},"${customerName}","${customerPhone}",${bill.subtotal},${bill.taxAmount},${bill.discount},${bill.totalAmount},"${paymentModeDisplay}",${bill.createdAt.toISOString()}\n`;
         });
 
         const dateStr = startDate || new Date().toISOString().split('T')[0];
