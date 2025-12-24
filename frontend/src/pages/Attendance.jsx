@@ -25,13 +25,6 @@ const Attendance = () => {
         if (isAdmin) {
             fetchUsers();
             fetchDailyAttendance(selectedDate);
-
-            // Auto-refresh attendance data every 10 seconds
-            const interval = setInterval(() => {
-                fetchDailyAttendance(selectedDate);
-            }, 10000); // 10 seconds
-
-            return () => clearInterval(interval);
         } else {
             fetchMyAttendance();
         }
@@ -239,8 +232,12 @@ const Attendance = () => {
                                             <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                                                 <input
                                                     type="text"
-                                                    placeholder="Add note..."
-                                                    className="w-full bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-primary-500 outline-none text-sm text-gray-900 dark:text-white"
+                                                    placeholder={userAttendance.status ? "Add note..." : "Mark status first"}
+                                                    disabled={!userAttendance.status}
+                                                    className={`w-full bg-transparent border-b outline-none text-sm transition-colors ${!userAttendance.status
+                                                            ? 'border-gray-200 dark:border-gray-700 text-gray-400 cursor-not-allowed'
+                                                            : 'border-gray-300 dark:border-gray-600 focus:border-primary-500 text-gray-900 dark:text-white'
+                                                        }`}
                                                     value={userAttendance.notes || ''}
                                                     onChange={(e) => {
                                                         // Update local state as user types
