@@ -100,7 +100,9 @@ const Orders = () => {
         // Date filter
         const orderDate = new Date(order.createdAt);
         const { start, end } = getDateRange();
-        const dateMatch = orderDate >= start && orderDate <= end;
+        // If viewing ACTIVE orders, show them regardless of date (e.g. orders spanning across midnight)
+        // Otherwise (Completed/Cancelled), respect the selected date range
+        const dateMatch = filter === 'ACTIVE' ? true : (orderDate >= start && orderDate <= end);
 
         // Search filter
         const lowerSearch = searchTerm.toLowerCase();

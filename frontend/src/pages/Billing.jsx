@@ -429,12 +429,49 @@ const Billing = () => {
                                             <span className="text-gray-600">Tax</span>
                                             <span className="font-medium text-gray-900">₹{selectedBill.taxAmount}</span>
                                         </div>
-                                        {selectedBill.discount > 0 && (
-                                            <div className="flex justify-between text-green-600">
-                                                <span>Discount</span>
-                                                <span>-₹{selectedBill.discount}</span>
+
+                                        {/* Discount Section */}
+                                        {selectedBill.paymentStatus === 'PENDING' ? (
+                                            <div className="flex items-center justify-between py-2">
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-gray-600">Discount %</span>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="100"
+                                                        placeholder="0"
+                                                        className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:border-primary-500 outline-none"
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                generateBill({
+                                                                    tableId: selectedBill.orders[0]?.tableId,
+                                                                    orderId: selectedBill.orders[0]?.id,
+                                                                    discountPercent: e.target.value
+                                                                });
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            if (e.target.value) {
+                                                                generateBill({
+                                                                    tableId: selectedBill.orders[0]?.tableId,
+                                                                    orderId: selectedBill.orders[0]?.id,
+                                                                    discountPercent: e.target.value
+                                                                });
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                                {selectedBill.discount > 0 && <span className="text-green-600">-₹{selectedBill.discount.toFixed(2)}</span>}
                                             </div>
+                                        ) : (
+                                            selectedBill.discount > 0 && (
+                                                <div className="flex justify-between text-green-600">
+                                                    <span>Discount</span>
+                                                    <span>-₹{selectedBill.discount}</span>
+                                                </div>
+                                            )
                                         )}
+
                                         <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-200 mt-2">
                                             <span>Total</span>
                                             <span>₹{selectedBill.totalAmount}</span>

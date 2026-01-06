@@ -63,13 +63,34 @@ export const generateBill = async (req, res) => {
 
             if (order) {
                 if (order.bill) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Bill already generated for this order',
-                    });
+                    // If bill exists and is PENDING, we are updating it (e.g. adding discount)
+                    if (order.bill.paymentStatus === 'PENDING') {
+                        existingBill = await prisma.bill.findUnique({
+                            where: { id: order.bill.id },
+                            include: {
+                                orders: {
+                                    include: {
+                                        orderItems: {
+                                            include: { menuItem: true, variant: true }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        // Existing orders are the ones already in the bill
+                        ordersToBill = existingBill.orders;
+                        newOrders = [];
+                    } else {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'Bill already generated and processed for this order',
+                        });
+                    }
+                } else {
+                    // New bill for this order
+                    ordersToBill = [order];
+                    newOrders = [order];
                 }
-                ordersToBill = [order];
-                newOrders = [order]; // All are "new" in this context
             }
         }
 
@@ -94,13 +115,17 @@ export const generateBill = async (req, res) => {
         const taxAmount = (subtotal * taxRate) / 100;
 
         // Determine discount
-        // If discount is provided in request, use it.
-        // If not, and existing bill has discount, use that.
-        // Else 0.
         let finalDiscount = 0;
-        if (discount !== undefined) {
-            finalDiscount = parseFloat(discount);
+        if (req.body.discountPercent !== undefined) {
+            const percent = parseFloat(req.body.discountPercent);
+            // Calculating discount on (Subtotal + Tax) to give a flat % off the final bill
+            // Alternatively, you can do subtotal * percent / 100 if preferred.
+            // Let's go with % off the Total (Subtotal + Tax) as it's most intuitive for "give me 5% off the bill"
+            finalDiscount = (subtotal + taxAmount) * (percent / 100);
+        } else if (req.body.discount !== undefined) {
+            finalDiscount = parseFloat(req.body.discount);
         } else if (existingBill) {
+            // Keep existing discount if not updating it
             finalDiscount = existingBill.discount;
         }
 
