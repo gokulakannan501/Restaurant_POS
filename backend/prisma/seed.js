@@ -5,27 +5,27 @@ const prisma = new PrismaClient();
 
 async function main() {
   const email = 'gokulakannan317@gmail.com';
+  const mobile = '6374038470';
+  const name = 'Gokulakannan';
   const password = 'tempPassword123'; // Temporary password
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Delete all users except the default admin
-  await prisma.user.deleteMany({
-    where: {
-      email: {
-        not: email,
-      },
-    },
-  });
-
   const admin = await prisma.user.upsert({
     where: { email },
-    update: {},
+    update: {
+      name,
+      mobile,
+      role: 'ADMIN',
+      permissions: JSON.stringify(['dashboard', 'menu', 'orders', 'billing', 'reports', 'settings', 'users']),
+    },
     create: {
-      name: 'Admin',
+      name,
       email,
+      mobile,
       password: hashedPassword,
       role: 'ADMIN',
       permissions: JSON.stringify(['dashboard', 'menu', 'orders', 'billing', 'reports', 'settings', 'users']),
+      isFirstLogin: true,
     },
   });
 
