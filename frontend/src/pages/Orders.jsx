@@ -211,6 +211,19 @@ const Orders = () => {
         }
     };
 
+    const handleDeleteOrder = async (orderId) => {
+        if (!window.confirm('Are you sure you want to PERMANENTLY delete this order? This cannot be undone.')) return;
+
+        try {
+            await api.delete(`/orders/${orderId}`);
+            toast.success('Order deleted successfully');
+            fetchOrders();
+        } catch (error) {
+            console.error('Error deleting order:', error);
+            toast.error(error.response?.data?.message || 'Failed to delete order');
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -340,9 +353,23 @@ const Orders = () => {
                                 </p>
                             </div>
                             <div className="text-right">
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </p>
+                                <div className="flex items-center justify-end gap-2">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteOrder(order.id);
+                                        }}
+                                        className="text-gray-400 hover:text-red-500 transition-colors p-1 -mr-2"
+                                        title="Delete Order"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
                                 {order.customerName && (
                                     <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mt-1">{order.customerName}</p>
                                 )}
